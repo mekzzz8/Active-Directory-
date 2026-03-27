@@ -1,16 +1,1330 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Directory — Guía para Juniors</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181b22;
+    --border: #1e2330;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-logo span { color: var(--muted); }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.05);
+  }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 2rem 4rem;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-badges {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-blue { color: var(--accent); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+  .badge-purple { color: #a78bfa; border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.05); }
+  .badge-green { color: var(--accent3); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+
+  /* SECTION */
+  section {
+    margin-bottom: 5rem;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 2rem 0 0.75rem;
+    color: var(--text);
+  }
+
+  p {
+    color: #94a3b8;
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+
+  /* CARDS */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .card-blue::before { background: var(--accent); }
+  .card-purple::before { background: var(--accent2); }
+  .card-green::before { background: var(--accent3); }
+  .card-warn::before { background: var(--warn); }
+
+  .card:hover {
+    border-color: rgba(0,212,255,0.3);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .card p {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 3px solid;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .callout-icon { font-size: 1rem; margin-top: 0.1rem; flex-shrink: 0; }
+  .callout-content { flex: 1; }
+  .callout-content p { margin: 0; font-size: 0.9rem; }
+  .callout-content strong { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; }
+
+  .callout-info { background: rgba(0,212,255,0.05); border-color: var(--accent); }
+  .callout-info .callout-content strong { color: var(--accent); }
+
+  .callout-warn { background: rgba(245,158,11,0.07); border-color: var(--warn); }
+  .callout-warn .callout-content strong { color: var(--warn); }
+
+  .callout-tip { background: rgba(16,185,129,0.06); border-color: var(--accent3); }
+  .callout-tip .callout-content strong { color: var(--accent3); }
+
+  .callout-danger { background: rgba(239,68,68,0.06); border-color: var(--danger); }
+  .callout-danger .callout-content strong { color: var(--danger); }
+
+  /* CODE */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+    margin: 1rem 0 1.5rem;
+    position: relative;
+  }
+
+  pre code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: #e2e8f0;
+  }
+
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: 0.8rem;
+  }
+
+  /* SYNTAX HIGHLIGHT MANUAL */
+  .kw { color: #7c3aed; }
+  .fn { color: #00d4ff; }
+  .str { color: #10b981; }
+  .cm { color: #475569; font-style: italic; }
+  .var { color: #f59e0b; }
+
+  /* STEPS */
+  .steps { margin: 1.5rem 0; }
+
+  .step {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 38px;
+    bottom: -1rem;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-body { flex: 1; padding-top: 0.4rem; }
+  .step-body h4 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .step-body p { font-size: 0.88rem; margin: 0 0 0.75rem; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: rgba(0,212,255,0.05);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: #94a3b8;
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* TICKET */
+  .ticket {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+
+  .ticket-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .ticket-header:hover { background: rgba(0,212,255,0.04); }
+
+  .ticket-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .ticket-title { font-size: 0.95rem; font-weight: 600; flex: 1; }
+
+  .ticket-prio {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .prio-high { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .prio-med  { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+  .prio-low  { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+
+  .ticket-chevron { color: var(--muted); font-size: 0.8rem; transition: transform 0.2s; }
+  .ticket.open .ticket-chevron { transform: rotate(180deg); }
+
+  .ticket-body { display: none; padding: 1.5rem; }
+  .ticket.open .ticket-body { display: block; }
+
+  .ticket-body h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .ticket-body h5:first-child { margin-top: 0; }
+  .ticket-body p { font-size: 0.88rem; margin-bottom: 0.5rem; }
+
+  /* DIAGRAM */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 2;
+    overflow-x: auto;
+  }
+
+  .diagram .node {
+    display: inline-block;
+    padding: 0.3rem 1rem;
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.75rem;
+  }
+
+  .node-dc { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.4); color: var(--accent); }
+  .node-ou { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.4); color: #a78bfa; }
+  .node-user { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.4); color: var(--accent3); }
+  .node-gpo { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: var(--warn); }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* MOBILE */
+  @media (max-width: 640px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    main { padding: 70px 1.25rem 3rem; }
+    .hero { padding: 3rem 0 2.5rem; }
+  }
+</style>
 </head>
 <body>
-<p class="p1">file:///Users/joseignacionavarrodepalencia/Downloads/index.html</p>
+
+<nav>
+  <div class="nav-logo">AD/<span>guide</span></div>
+  <ul class="nav-links">
+    <li><a href="#que-es">¿Qué es AD?</a></li>
+    <li><a href="#conceptos">Conceptos</a></li>
+    <li><a href="#despliegue">Despliegue</a></li>
+    <li><a href="#gpo">GPO</a></li>
+    <li><a href="#tickets">Tickets</a></li>
+    <li><a href="#comandos">Comandos</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Guía completa para IT Juniors</div>
+    <h1>Active<br><em>Directory</em></h1>
+    <p class="hero-desc">
+      Todo lo que necesitas saber sobre Active Directory: qué es, cómo desplegarlo en un lab casero y cómo resolver los tickets más habituales que te encontrarás en tu día a día como técnico IT.
+    </p>
+    <div class="hero-badges">
+      <span class="badge badge-blue">Windows Server 2022</span>
+      <span class="badge badge-purple">Lab / VM</span>
+      <span class="badge badge-green">Nivel Junior</span>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 1: QUÉ ES AD -->
+  <section id="que-es">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2>¿Qué es Active Directory?</h2>
+    </div>
+
+    <p>
+      Active Directory (AD) es el servicio de directorio de Microsoft que permite a las organizaciones gestionar de forma centralizada usuarios, equipos, grupos, permisos y políticas en toda la red. Es el núcleo de la infraestructura IT en la mayoría de empresas del mundo.
+    </p>
+    <p>
+      Imagínalo como la base de datos maestra de tu empresa: sabe quién eres, a qué tienes acceso, qué puedes hacer y desde qué equipo te puedes conectar.
+    </p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <div class="callout-content">
+        <strong>Analogía sencilla</strong>
+        <p>Active Directory es como el departamento de RRHH de tu empresa, pero digital. Controla quién entra, qué puede hacer y dónde puede acceder.</p>
+      </div>
+    </div>
+
+    <h3>¿Para qué sirve?</h3>
+
+    <div class="card-grid">
+      <div class="card card-blue">
+        <div class="card-icon">👤</div>
+        <h4>Gestión de usuarios</h4>
+        <p>Crea, modifica y elimina cuentas de usuario. Controla contraseñas, bloqueos y atributos de cada persona.</p>
+      </div>
+      <div class="card card-purple">
+        <div class="card-icon">💻</div>
+        <h4>Gestión de equipos</h4>
+        <p>Registra todos los ordenadores de la empresa y aplica configuraciones remotamente sin tocarlos físicamente.</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">🔐</div>
+        <h4>Control de accesos</h4>
+        <p>Define quién puede acceder a qué carpetas, impresoras, aplicaciones y recursos de red.</p>
+      </div>
+      <div class="card card-warn">
+        <div class="card-icon">📋</div>
+        <h4>Políticas de grupo (GPO)</h4>
+        <p>Aplica configuraciones masivas a cientos de equipos a la vez: fondos de pantalla, restricciones, software...</p>
+      </div>
+    </div>
+
+    <h3>Componentes principales</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Componente</th>
+            <th>Descripción</th>
+            <th>Ejemplo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Domain Controller (DC)</code></td>
+            <td>Servidor que aloja y gestiona AD. El "cerebro" del dominio.</td>
+            <td>SRV-DC01</td>
+          </tr>
+          <tr>
+            <td><code>Domain</code></td>
+            <td>Nombre lógico del entorno. Agrupa todos los recursos.</td>
+            <td>empresa.local</td>
+          </tr>
+          <tr>
+            <td><code>Forest</code></td>
+            <td>Contenedor de uno o más dominios. El nivel más alto.</td>
+            <td>empresa.local (forest raíz)</td>
+          </tr>
+          <tr>
+            <td><code>OU (Unidad Organizativa)</code></td>
+            <td>Carpetas lógicas para organizar usuarios y equipos.</td>
+            <td>OU=RRHH, OU=IT...</td>
+          </tr>
+          <tr>
+            <td><code>GPO</code></td>
+            <td>Políticas de grupo que se aplican a OUs, sitios o el dominio.</td>
+            <td>Política de contraseñas</td>
+          </tr>
+          <tr>
+            <td><code>DNS</code></td>
+            <td>AD depende completamente del DNS para funcionar.</td>
+            <td>_ldap._tcp.empresa.local</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: CONCEPTOS CLAVE -->
+  <section id="conceptos">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2>Conceptos clave</h2>
+    </div>
+
+    <p>Antes de desplegar o administrar AD, necesitas entender estos conceptos fundamentales. Sin ellos te perderás rápido.</p>
+
+    <h3>Estructura del dominio</h3>
+
+    <div class="diagram">
+      <div style="text-align:center; padding: 1rem 0;">
+        <div><span class="node node-dc">🖥️ Domain Controller — empresa.local</span></div>
+        <div style="margin: 0.5rem 0; color: var(--border);">│</div>
+        <div style="display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <span class="node node-ou">📁 OU = RRHH</span>
+            <div style="color:var(--border)">│</div>
+            <span class="node node-user">👤 usuario1</span>
+            <span style="color:var(--muted)"> </span>
+            <span class="node node-user">👤 usuario2</span>
+          </div>
+          <div style="text-align:center;">
+            <span class="node node-ou">📁 OU = IT</span>
+            <div style="color:var(--border)">│</div>
+            <span class="node node-user">👤 admin1</span>
+            <span style="color:var(--muted)"> </span>
+            <span class="node node-user">💻 PC-IT-01</span>
+          </div>
+          <div style="text-align:center;">
+            <span class="node node-ou">📁 OU = Equipos</span>
+            <div style="color:var(--border)">│</div>
+            <span class="node node-user">💻 PC-001</span>
+            <span style="color:var(--muted)"> </span>
+            <span class="node node-gpo">📋 GPO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Usuarios vs Grupos vs Equipos</h3>
+
+    <div class="card-grid">
+      <div class="card card-blue">
+        <div class="card-icon">👤</div>
+        <h4>Usuario (User Account)</h4>
+        <p>Representa a una persona real. Tiene nombre, contraseña, email, departamento. Se usa para autenticarse en el dominio.</p>
+      </div>
+      <div class="card card-purple">
+        <div class="card-icon">👥</div>
+        <h4>Grupo (Group)</h4>
+        <p>Colección de usuarios. Se usa para asignar permisos a muchos usuarios a la vez. Mucho más eficiente que hacerlo uno a uno.</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">💻</div>
+        <h4>Equipo (Computer Account)</h4>
+        <p>Representa una máquina unida al dominio. Permite aplicarle GPOs y gestionarla remotamente.</p>
+      </div>
+    </div>
+
+    <h3>Tipos de grupos</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Ámbito</th><th>Cuándo usarlo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Global</code></td>
+            <td>Todo el dominio</td>
+            <td>Agrupar usuarios del mismo dominio (ej: GG_RRHH)</td>
+          </tr>
+          <tr>
+            <td><code>Domain Local</code></td>
+            <td>Recursos locales</td>
+            <td>Asignar permisos sobre recursos (ej: DL_CarpetaShared_R)</td>
+          </tr>
+          <tr>
+            <td><code>Universal</code></td>
+            <td>Todos los dominios del forest</td>
+            <td>Entornos multi-dominio</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✅</span>
+      <div class="callout-content">
+        <strong>Buena práctica — Modelo AGDLP</strong>
+        <p>Accounts → Global groups → Domain Local groups → Permissions. Mete usuarios en grupos globales, los globales en grupos de dominio local, y asigna permisos a esos grupos locales. Así escala limpio.</p>
+      </div>
+    </div>
+
+    <h3>Autenticación — Kerberos</h3>
+    <p>AD usa el protocolo <strong>Kerberos</strong> para autenticar usuarios. Cuando inicias sesión, el DC te emite un ticket que demuestra tu identidad al resto de sistemas. No se transmite tu contraseña por la red, solo tickets cifrados.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">🔑</span>
+      <div class="callout-content">
+        <strong>¿Por qué importa esto?</strong>
+        <p>Muchos errores de autenticación están relacionados con Kerberos: relojes desincronizados entre el cliente y el DC, SPN mal configurados, o tickets caducados. Si el reloj difiere más de 5 minutos, Kerberos falla.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: DESPLIEGUE -->
+  <section id="despliegue">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2>Cómo desplegar AD en un lab</h2>
+    </div>
+
+    <p>Vamos a montar un lab casero con <strong>Windows Server 2022</strong> en una máquina virtual. No necesitas hardware especial, con VirtualBox o VMware Workstation te vale.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">🖥️</span>
+      <div class="callout-content">
+        <strong>Requisitos mínimos del lab</strong>
+        <p>Windows Server 2022 (evaluación gratuita 180 días) · 4 GB RAM para el DC · 60 GB disco · Red interna en VirtualBox/VMware · Opcional: 1 VM adicional con Windows 10/11 para unir al dominio.</p>
+      </div>
+    </div>
+
+    <h3>Paso a paso — Instalación del rol AD DS</h3>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Preparar la VM con Windows Server 2022</h4>
+          <p>Instala Windows Server 2022 en una VM. Pon IP estática al servidor antes de promoverlo a DC. Esto es crítico — un DC nunca debe usar DHCP.</p>
+          <span class="code-label">PowerShell — Configurar IP estática</span>
+          <pre><code><span class="cm"># Busca el nombre del adaptador</span>
+<span class="fn">Get-NetAdapter</span>
+
+<span class="cm"># Asigna IP estática</span>
+<span class="fn">New-NetIPAddress</span> <span class="var">-InterfaceAlias</span> <span class="str">"Ethernet"</span> <span class="var">-IPAddress</span> <span class="str">"192.168.1.10"</span> `
+  <span class="var">-PrefixLength</span> <span class="str">24</span> <span class="var">-DefaultGateway</span> <span class="str">"192.168.1.1"</span>
+
+<span class="cm"># DNS apuntando a sí mismo (el propio DC)</span>
+<span class="fn">Set-DnsClientServerAddress</span> <span class="var">-InterfaceAlias</span> <span class="str">"Ethernet"</span> `
+  <span class="var">-ServerAddresses</span> <span class="str">"192.168.1.10"</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Instalar el rol AD DS</h4>
+          <p>Desde PowerShell como Administrador, instala el rol de Active Directory Domain Services.</p>
+          <span class="code-label">PowerShell</span>
+          <pre><code><span class="fn">Install-WindowsFeature</span> <span class="var">-Name</span> AD-Domain-Services <span class="var">-IncludeManagementTools</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Promover el servidor a Domain Controller</h4>
+          <p>Este comando crea el forest y el dominio nuevo. Cambia <code>empresa.local</code> por el nombre que quieras. El servidor se reiniciará solo al acabar.</p>
+          <span class="code-label">PowerShell</span>
+          <pre><code><span class="fn">Install-ADDSForest</span> `
+  <span class="var">-DomainName</span> <span class="str">"empresa.local"</span> `
+  <span class="var">-DomainNetbiosName</span> <span class="str">"EMPRESA"</span> `
+  <span class="var">-InstallDns</span> `
+  <span class="var">-SafeModeAdministratorPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="str">"P@ssw0rd123!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+  <span class="var">-Force</span></code></pre>
+          <div class="callout callout-warn" style="margin-top:0.75rem">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              <strong>Importante</strong>
+              <p>La contraseña DSRM (Safe Mode) es para recuperación de desastres. Guárdala en un lugar seguro. Si la pierdes y el DC falla, estás en problemas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Verificar que AD funciona</h4>
+          <p>Tras el reinicio, comprueba que el dominio está activo y el DC responde correctamente.</p>
+          <span class="code-label">PowerShell</span>
+          <pre><code><span class="cm"># Ver información del dominio</span>
+<span class="fn">Get-ADDomain</span>
+
+<span class="cm"># Comprobar que el DC responde</span>
+<span class="fn">dcdiag</span> /test:dns /v
+
+<span class="cm"># Ver todos los Domain Controllers</span>
+<span class="fn">Get-ADDomainController</span> <span class="var">-Filter</span> *</code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Crear estructura básica de OUs</h4>
+          <p>Organiza el AD antes de meter usuarios. Una buena estructura de OUs facilita enormemente la aplicación de GPOs.</p>
+          <span class="code-label">PowerShell</span>
+          <pre><code><span class="var">$domain</span> = <span class="str">"DC=empresa,DC=local"</span>
+
+<span class="cm"># OUs principales</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"_EMPRESA"</span> <span class="var">-Path</span> <span class="var">$domain</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Usuarios"</span> <span class="var">-Path</span> <span class="str">"OU=_EMPRESA,$domain"</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Equipos"</span>  <span class="var">-Path</span> <span class="str">"OU=_EMPRESA,$domain"</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Grupos"</span>   <span class="var">-Path</span> <span class="str">"OU=_EMPRESA,$domain"</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"IT"</span>       <span class="var">-Path</span> <span class="str">"OU=Usuarios,OU=_EMPRESA,$domain"</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"RRHH"</span>     <span class="var">-Path</span> <span class="str">"OU=Usuarios,OU=_EMPRESA,$domain"</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h4>Crear usuarios de prueba</h4>
+          <span class="code-label">PowerShell</span>
+          <pre><code><span class="fn">New-ADUser</span> `
+  <span class="var">-Name</span>              <span class="str">"Juan García"</span> `
+  <span class="var">-SamAccountName</span>   <span class="str">"jgarcia"</span> `
+  <span class="var">-UserPrincipalName</span> <span class="str">"jgarcia@empresa.local"</span> `
+  <span class="var">-Path</span>              <span class="str">"OU=RRHH,OU=Usuarios,OU=_EMPRESA,DC=empresa,DC=local"</span> `
+  <span class="var">-AccountPassword</span>   (<span class="fn">ConvertTo-SecureString</span> <span class="str">"Temporal123!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+  <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span> `
+  <span class="var">-Enabled</span>           <span class="var">$true</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <h4>Unir un equipo cliente al dominio</h4>
+          <p>Desde el equipo Windows 10/11 cliente, con IP estática y DNS apuntando al DC:</p>
+          <span class="code-label">PowerShell (en el equipo cliente)</span>
+          <pre><code><span class="cm"># El equipo cliente debe tener DNS apuntando al DC (192.168.1.10)</span>
+<span class="fn">Add-Computer</span> <span class="var">-DomainName</span> <span class="str">"empresa.local"</span> `
+  <span class="var">-Credential</span> (<span class="fn">Get-Credential</span>) `
+  <span class="var">-OUPath</span> <span class="str">"OU=Equipos,OU=_EMPRESA,DC=empresa,DC=local"</span> `
+  <span class="var">-Restart</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: GPO -->
+  <section id="gpo">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2>Group Policy Objects (GPO)</h2>
+    </div>
+
+    <p>Las GPOs son uno de los recursos más potentes de AD. Permiten aplicar configuraciones a cientos de usuarios y equipos automáticamente, sin tocarlos uno a uno.</p>
+
+    <h3>¿Cómo funcionan?</h3>
+    <p>Las GPOs se crean y vinculan a OUs, sitios o al dominio entero. Cuando un usuario inicia sesión o un equipo arranca, descarga las políticas que le corresponden del DC.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">📋</span>
+      <div class="callout-content">
+        <strong>Orden de aplicación — LSDOU</strong>
+        <p>Las GPOs se aplican en este orden: <strong>L</strong>ocal → <strong>S</strong>ite → <strong>D</strong>omain → <strong>OU</strong>. Las más cercanas al objeto (OU) ganan, a menos que haya un "Enforce" configurado.</p>
+      </div>
+    </div>
+
+    <h3>GPOs más comunes en empresas</h3>
+
+    <div class="card-grid">
+      <div class="card card-blue">
+        <div class="card-icon">🔒</div>
+        <h4>Política de contraseñas</h4>
+        <p>Longitud mínima, complejidad, expiración, historial. Se aplica a nivel de dominio.</p>
+      </div>
+      <div class="card card-purple">
+        <div class="card-icon">🖥️</div>
+        <h4>Fondos y restricciones</h4>
+        <p>Imponer fondo corporativo, bloquear panel de control, ocultar unidades...</p>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">🗺️</div>
+        <h4>Mapeo de unidades</h4>
+        <p>Conectar automáticamente unidades de red al iniciar sesión según el grupo del usuario.</p>
+      </div>
+      <div class="card card-warn">
+        <div class="card-icon">🔥</div>
+        <h4>Configurar firewall</h4>
+        <p>Activar Windows Firewall, definir reglas, bloquear puertos en todos los equipos.</p>
+      </div>
+    </div>
+
+    <h3>Crear una GPO básica — Política de contraseñas</h3>
+
+    <span class="code-label">PowerShell</span>
+    <pre><code><span class="cm"># Crear la GPO</span>
+<span class="fn">New-GPO</span> <span class="var">-Name</span> <span class="str">"Politica-Contrasenas-Empresa"</span>
+
+<span class="cm"># Vincularla al dominio</span>
+<span class="fn">New-GPLink</span> <span class="var">-Name</span> <span class="str">"Politica-Contrasenas-Empresa"</span> `
+  <span class="var">-Target</span> <span class="str">"DC=empresa,DC=local"</span>
+
+<span class="cm"># Las políticas de contraseña se configuran desde la GUI:
+# Group Policy Management → editar GPO → 
+# Computer Configuration → Windows Settings → 
+# Security Settings → Account Policies → Password Policy</span></code></pre>
+
+    <h3>Comandos GPO del día a día</h3>
+
+    <span class="code-label">PowerShell</span>
+    <pre><code><span class="cm"># Forzar actualización de GPOs en el equipo local</span>
+<span class="fn">gpupdate</span> /force
+
+<span class="cm"># Ver GPOs aplicadas al usuario/equipo actual</span>
+<span class="fn">gpresult</span> /r
+
+<span class="cm"># Ver GPOs aplicadas en formato HTML (muy útil para troubleshooting)</span>
+<span class="fn">gpresult</span> /H C:\temp\gpo-report.html /F
+
+<span class="cm"># Forzar GPUpdate en un equipo remoto</span>
+<span class="fn">Invoke-GPUpdate</span> <span class="var">-Computer</span> <span class="str">"PC-001"</span> <span class="var">-Force</span></code></pre>
+  </section>
+
+  <!-- SECCIÓN 5: TICKETS -->
+  <section id="tickets">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2>Tickets típicos en IT</h2>
+    </div>
+
+    <p>Estos son los problemas más frecuentes que resolverás trabajando con Active Directory. Haz clic en cada ticket para ver el diagnóstico y la solución.</p>
+
+    <!-- TICKET 1 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-001</span>
+        <span class="ticket-title">Usuario no puede iniciar sesión — cuenta bloqueada</span>
+        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>El usuario llama diciendo que le sale "Tu cuenta está bloqueada" o "El administrador ha bloqueado tu cuenta". No puede entrar a ningún equipo del dominio.</p>
+        <h5>Causa</h5>
+        <p>Ha superado el número máximo de intentos de contraseña fallidos definido en la política de contraseñas. Muy común después de vacaciones (contraseña expirada) o después de cambiar contraseña en un sitio y no en otro.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Ver si la cuenta está bloqueada</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-Properties</span> LockedOut, BadLogonCount, LastBadPasswordAttempt
+
+<span class="cm"># Buscar desde qué equipo se bloqueó (Event ID 4740 en el DC)</span>
+<span class="fn">Get-WinEvent</span> <span class="var">-ComputerName</span> <span class="str">"SRV-DC01"</span> <span class="var">-FilterHashtable</span> @{
+  LogName = <span class="str">'Security'</span>
+  Id = <span class="str">4740</span>
+} | <span class="fn">Where-Object</span> { <span class="var">$_</span>.Message <span class="var">-like</span> <span class="str">"*jgarcia*"</span> } | <span class="fn">Select-Object</span> <span class="var">-First</span> 5</code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Desbloquear la cuenta</span>
+<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># Si también expiró la contraseña, forzar cambio en próximo login</span>
+<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span></code></pre>
+        <div class="callout callout-tip" style="margin-top:1rem">
+          <span class="callout-icon">✅</span>
+          <div class="callout-content">
+            <strong>Investigar el origen</strong>
+            <p>Si el usuario se vuelve a bloquear rápido, hay algo que está intentando autenticarse con la contraseña antigua: sesiones de escritorio remoto guardadas, sincronización del móvil, tareas programadas, o unidades de red mapeadas con credenciales antiguas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKET 2 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-002</span>
+        <span class="ticket-title">Equipo no se puede unir al dominio</span>
+        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>Al intentar unir un equipo al dominio sale error: "No se puede poner en contacto con el dominio" o "El nombre de dominio especificado no existe".</p>
+        <h5>Causas comunes</h5>
+        <p>1. DNS mal configurado en el cliente (el más habitual). 2. El equipo no llega al DC por red. 3. Firewall bloqueando puertos. 4. Hora del sistema desincronizada (Kerberos).</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell — en el equipo cliente</span>
+        <pre><code><span class="cm"># ¿Resuelve el nombre del dominio?</span>
+<span class="fn">Resolve-DnsName</span> <span class="str">"empresa.local"</span>
+
+<span class="cm"># ¿Llega al DC por red?</span>
+<span class="fn">Test-NetConnection</span> <span class="var">-ComputerName</span> <span class="str">"192.168.1.10"</span> <span class="var">-Port</span> <span class="str">389</span>
+
+<span class="cm"># ¿El DNS del cliente apunta al DC?</span>
+<span class="fn">Get-DnsClientServerAddress</span>
+
+<span class="cm"># Comprobar hora del sistema</span>
+<span class="fn">w32tm</span> /query /status</code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># 1. Corregir DNS del cliente para que apunte al DC</span>
+<span class="fn">Set-DnsClientServerAddress</span> <span class="var">-InterfaceAlias</span> <span class="str">"Ethernet"</span> <span class="var">-ServerAddresses</span> <span class="str">"192.168.1.10"</span>
+
+<span class="cm"># 2. Sincronizar el reloj con el DC</span>
+<span class="fn">w32tm</span> /resync /force
+
+<span class="cm"># 3. Intentar unir al dominio de nuevo</span>
+<span class="fn">Add-Computer</span> <span class="var">-DomainName</span> <span class="str">"empresa.local"</span> <span class="var">-Credential</span> (<span class="fn">Get-Credential</span>) <span class="var">-Restart</span></code></pre>
+      </div>
+    </div>
+
+    <!-- TICKET 3 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-003</span>
+        <span class="ticket-title">Las GPOs no se aplican en un equipo</span>
+        <span class="ticket-prio prio-med">MEDIUM</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>Has creado o modificado una GPO pero en el equipo no se refleja el cambio. El fondo de pantalla sigue siendo el de antes, o la restricción que pusiste no funciona.</p>
+        <h5>Causas comunes</h5>
+        <p>1. La GPO está vinculada a la OU incorrecta. 2. El equipo/usuario no está en esa OU. 3. Hay un filtro WMI o de seguridad que excluye el objeto. 4. La GPO tiene "Link Enabled" desactivado.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell / CMD</span>
+        <pre><code><span class="cm"># Ver qué GPOs se aplican a este equipo/usuario y por qué</span>
+<span class="fn">gpresult</span> /r
+
+<span class="cm"># Generar reporte HTML detallado (abre el .html en el navegador)</span>
+<span class="fn">gpresult</span> /H C:\temp\gpo.html /F
+<span class="fn">Start-Process</span> <span class="str">"C:\temp\gpo.html"</span>
+
+<span class="cm"># Forzar descarga de GPOs desde el DC</span>
+<span class="fn">gpupdate</span> /force</code></pre>
+        <h5>Solución</h5>
+        <p>Revisar en el reporte de <code>gpresult</code> la sección "Denied GPOs". Si aparece la GPO denegada, verifica: la OU donde está el objeto, que el link esté habilitado, y que no haya un filtro de seguridad que excluya al equipo. En GPMC, la pestaña "Scope" de la GPO muestra dónde está vinculada y los filtros activos.</p>
+      </div>
+    </div>
+
+    <!-- TICKET 4 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-004</span>
+        <span class="ticket-title">Restablecer contraseña de usuario</span>
+        <span class="ticket-prio prio-low">LOW</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>El usuario ha olvidado su contraseña o lleva tiempo sin acceder y ha expirado. Solicita que se la restablezcan.</p>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Resetear contraseña y forzar cambio en el próximo login</span>
+<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> `
+  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="str">"Temporal123!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+  <span class="var">-Reset</span>
+
+<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span>
+
+<span class="cm"># Si además estaba bloqueada</span>
+<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span></code></pre>
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-content">
+            <strong>Seguridad</strong>
+            <p>Siempre verifica la identidad del usuario antes de resetear una contraseña. Un atacante puede llamar haciéndose pasar por un compañero. Sigue el proceso de verificación de tu empresa (ticket firmado, validación por manager, etc.).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKET 5 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-005</span>
+        <span class="ticket-title">Usuario no tiene acceso a una carpeta compartida</span>
+        <span class="ticket-prio prio-med">MEDIUM</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>El usuario accede a <code>\\servidor\Proyectos</code> y le sale "Acceso denegado" o directamente no ve la carpeta.</p>
+        <h5>Diagnóstico</h5>
+        <p>Los permisos en carpetas compartidas tienen dos capas: permisos de <strong>compartir (Share)</strong> y permisos <strong>NTFS</strong>. Las dos deben estar bien. Normalmente el problema está en que el usuario no está en el grupo correcto de AD.</p>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Ver de qué grupos es miembro el usuario</span>
+<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> | <span class="fn">Select-Object</span> Name
+
+<span class="cm"># Ver permisos NTFS de la carpeta (en el servidor)</span>
+<span class="fn">Get-Acl</span> <span class="str">"\\servidor\d$\Proyectos"</span> | <span class="fn">Format-List</span></code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Añadir el usuario al grupo que tiene acceso a esa carpeta</span>
+<span class="fn">Add-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"DL_Proyectos_Lectura"</span> <span class="var">-Members</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># El usuario debe cerrar sesión y volver a abrirla
+# para que el token Kerberos se actualice con el nuevo grupo</span></code></pre>
+        <div class="callout callout-info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-content">
+            <strong>Token Kerberos</strong>
+            <p>Añadir a un usuario a un grupo no tiene efecto inmediato. El token de seguridad se crea al hacer login. El usuario debe cerrar sesión completamente (no solo bloquear) y volver a entrar para que el cambio surta efecto.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKET 6 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-006</span>
+        <span class="ticket-title">Dar de baja a un empleado — offboarding</span>
+        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>Un empleado deja la empresa. Hay que actuar rápido para cortar su acceso a todos los sistemas.</p>
+        <h5>Proceso estándar de offboarding</h5>
+        <span class="code-label">PowerShell — Checklist de offboarding</span>
+        <pre><code><span class="var">$usuario</span> = <span class="str">"jgarcia"</span>
+
+<span class="cm"># 1. Deshabilitar la cuenta inmediatamente</span>
+<span class="fn">Disable-ADAccount</span> <span class="var">-Identity</span> <span class="var">$usuario</span>
+
+<span class="cm"># 2. Cambiar contraseña a algo aleatorio (nadie la conocerá)</span>
+<span class="var">$newPass</span> = [<span class="fn">System.Web.Security.Membership</span>]::<span class="fn">GeneratePassword</span>(<span class="str">20</span>,<span class="str">5</span>)
+<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="var">$usuario</span> `
+  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="var">$newPass</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) <span class="var">-Reset</span>
+
+<span class="cm"># 3. Mover a OU de cuentas deshabilitadas</span>
+<span class="fn">Move-ADObject</span> <span class="var">-Identity</span> (<span class="fn">Get-ADUser</span> <span class="var">$usuario</span>).DistinguishedName `
+  <span class="var">-TargetPath</span> <span class="str">"OU=Deshabilitados,DC=empresa,DC=local"</span>
+
+<span class="cm"># 4. Quitar de todos los grupos (excepto Domain Users)</span>
+<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">$usuario</span> | <span class="fn">Where-Object</span> {<span class="var">$_</span>.Name <span class="var">-ne</span> <span class="str">"Domain Users"</span>} | <span class="fn">ForEach-Object</span> {
+  <span class="fn">Remove-ADGroupMember</span> <span class="var">-Identity</span> <span class="var">$_</span>.Name <span class="var">-Members</span> <span class="var">$usuario</span> <span class="var">-Confirm:$false</span>
+}
+
+<span class="cm"># 5. Añadir nota en la cuenta con la fecha</span>
+<span class="fn">Set-ADUser</span> <span class="var">$usuario</span> <span class="var">-Description</span> <span class="str">"BAJA: $(Get-Date -Format 'yyyy-MM-dd') - Motivo: fin contrato"</span></code></pre>
+        <div class="callout callout-danger">
+          <span class="callout-icon">🚨</span>
+          <div class="callout-content">
+            <strong>No borres la cuenta inmediatamente</strong>
+            <p>Deshabilita y espera 30-90 días antes de eliminarla. La cuenta puede estar como propietaria de archivos, buzones de correo, o ser necesaria para auditorías. Borrarla irreversiblemente puede crear problemas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TICKET 7 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-007</span>
+        <span class="ticket-title">El DC muestra errores de replicación</span>
+        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>Tienes más de un DC y los cambios hechos en uno no aparecen en el otro. O bien <code>dcdiag</code> muestra errores de replicación.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell / CMD</span>
+        <pre><code><span class="cm"># Ver estado de replicación entre todos los DCs</span>
+<span class="fn">repadmin</span> /replsummary
+
+<span class="cm"># Ver errores de replicación detallados</span>
+<span class="fn">repadmin</span> /showrepl
+
+<span class="cm"># Diagnóstico completo del DC</span>
+<span class="fn">dcdiag</span> /v /test:replications</code></pre>
+        <h5>Forzar replicación</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Forzar replicación de todos los DCs</span>
+<span class="fn">repadmin</span> /syncall /AdeP
+
+<span class="cm"># Forzar replicación desde un DC específico</span>
+<span class="fn">repadmin</span> /replicate SRV-DC02 SRV-DC01 DC=empresa,DC=local</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 6: COMANDOS -->
+  <section id="comandos">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2>Comandos esenciales</h2>
+    </div>
+
+    <p>Referencia rápida de los comandos PowerShell más usados para administrar Active Directory en el día a día.</p>
+
+    <h3>Usuarios</h3>
+    <span class="code-label">PowerShell</span>
+    <pre><code><span class="cm"># Buscar usuario por nombre</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> {<span class="var">Name</span> <span class="var">-like</span> <span class="str">"*garcia*"</span>} <span class="var">-Properties</span> *
+
+<span class="cm"># Ver info de un usuario</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-Properties</span> LockedOut, PasswordLastSet, LastLogonDate
+
+<span class="cm"># Habilitar/deshabilitar cuenta</span>
+<span class="fn">Enable-ADAccount</span>  <span class="var">-Identity</span> <span class="str">"jgarcia"</span>
+<span class="fn">Disable-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># Ver todos los usuarios deshabilitados</span>
+<span class="fn">Search-ADAccount</span> <span class="var">-AccountDisabled</span> <span class="var">-UsersOnly</span>
+
+<span class="cm"># Ver cuentas con contraseña expirada</span>
+<span class="fn">Search-ADAccount</span> <span class="var">-PasswordExpired</span> <span class="var">-UsersOnly</span>
+
+<span class="cm"># Usuarios que no han iniciado sesión en 90 días</span>
+<span class="var">$fecha</span> = (<span class="fn">Get-Date</span>).AddDays(<span class="var">-90</span>)
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> {LastLogonDate <span class="var">-lt</span> <span class="var">$fecha</span> <span class="var">-and</span> Enabled <span class="var">-eq</span> <span class="var">$true</span>} `
+  <span class="var">-Properties</span> LastLogonDate | <span class="fn">Select-Object</span> Name, LastLogonDate</code></pre>
+
+    <h3>Grupos</h3>
+    <span class="code-label">PowerShell</span>
+    <pre><code><span class="cm"># Ver miembros de un grupo</span>
+<span class="fn">Get-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"Domain Admins"</span>
+
+<span class="cm"># Ver grupos de un usuario</span>
+<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> | <span class="fn">Select-Object</span> Name
+
+<span class="cm"># Añadir usuario a grupo</span>
+<span class="fn">Add-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"GG_Marketing"</span> <span class="var">-Members</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># Quitar usuario de grupo</span>
+<span class="fn">Remove-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"GG_Marketing"</span> <span class="var">-Members</span> <span class="str">"jgarcia"</span> <span class="var">-Confirm:$false</span></code></pre>
+
+    <h3>Equipos</h3>
+    <span class="code-label">PowerShell</span>
+    <pre><code><span class="cm"># Buscar equipo en AD</span>
+<span class="fn">Get-ADComputer</span> <span class="var">-Filter</span> {Name <span class="var">-like</span> <span class="str">"PC-*"</span>} <span class="var">-Properties</span> LastLogonDate
+
+<span class="cm"># Equipos que no se han conectado en 60 días (pueden estar obsoletos)</span>
+<span class="var">$fecha</span> = (<span class="fn">Get-Date</span>).AddDays(<span class="var">-60</span>)
+<span class="fn">Get-ADComputer</span> <span class="var">-Filter</span> {LastLogonDate <span class="var">-lt</span> <span class="var">$fecha</span>} <span class="var">-Properties</span> LastLogonDate | <span class="fn">Select-Object</span> Name, LastLogonDate
+
+<span class="cm"># Ver en qué OU está un equipo</span>
+<span class="fn">Get-ADComputer</span> <span class="var">-Identity</span> <span class="str">"PC-001"</span> | <span class="fn">Select-Object</span> DistinguishedName</code></pre>
+
+    <h3>Diagnóstico general</h3>
+    <span class="code-label">PowerShell / CMD</span>
+    <pre><code><span class="cm"># Estado general del DC</span>
+<span class="fn">dcdiag</span> /v
+
+<span class="cm"># Ver roles FSMO (quién tiene cada rol maestro)</span>
+<span class="fn">netdom</span> query fsmo
+
+<span class="cm"># Ver info del dominio</span>
+<span class="fn">Get-ADDomain</span>
+<span class="fn">Get-ADForest</span>
+
+<span class="cm"># Verificar comunicación con el DC desde el cliente</span>
+<span class="fn">nltest</span> /dsgetdc:empresa.local</code></pre>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">🚀</span>
+      <div class="callout-content">
+        <strong>Tip — RSAT Tools</strong>
+        <p>Para ejecutar estos comandos desde tu equipo Windows 10/11 sin tener que conectarte al DC, instala las RSAT Tools: <code>Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online</code>. Así puedes administrar AD desde tu propio equipo.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Active Directory Guide · Para juniors IT · Desplegado con GitHub Pages
+</footer>
+
+<script>
+  function toggleTicket(el) {
+    el.classList.toggle('open');
+  }
+</script>
+
 </body>
 </html>
