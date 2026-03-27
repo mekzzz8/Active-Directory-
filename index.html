@@ -971,263 +971,172 @@
 <span class="fn">Invoke-GPUpdate</span> <span class="var">-Computer</span> <span class="str">"PC-001"</span> <span class="var">-Force</span></code></pre>
   </section>
 
-  <!-- SECCIÓN 5: TICKETS -->
-  <section id="tickets">
+<section id="tickets">
     <div class="section-header">
       <span class="section-num">05</span>
-      <h2>Tickets típicos en IT</h2>
+      <h2>Resolución de Tickets IT (Modo Dual)</h2>
     </div>
 
-    <p>Estos son los problemas más frecuentes que resolverás trabajando con Active Directory. Haz clic en cada ticket para ver el diagnóstico y la solución.</p>
+    <p>En el soporte técnico real, la eficiencia es clave. Aquí resolvemos los 7 casos más comunes combinando la facilidad de la interfaz gráfica (GUI) con la potencia de los comandos (PowerShell).</p>
 
-    <!-- TICKET 1 -->
-    <div class="ticket" onclick="toggleTicket(this)">
+    <div class="ticket" onclick="this.classList.toggle('open')">
       <div class="ticket-header">
-        <span class="ticket-id">TKT-001</span>
-        <span class="ticket-title">Usuario no puede iniciar sesión — cuenta bloqueada</span>
-        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-id">#001</span>
+        <span class="ticket-title">Cuenta Bloqueada (User Lockout)</span>
+        <span class="ticket-prio prio-high">Alta</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>El usuario llama diciendo que le sale "Tu cuenta está bloqueada" o "El administrador ha bloqueado tu cuenta". No puede entrar a ningún equipo del dominio.</p>
-        <h5>Causa</h5>
-        <p>Ha superado el número máximo de intentos de contraseña fallidos definido en la política de contraseñas. Muy común después de vacaciones (contraseña expirada) o después de cambiar contraseña en un sitio y no en otro.</p>
-        <h5>Diagnóstico</h5>
-        <span class="code-label">PowerShell — en el DC</span>
-        <pre><code><span class="cm"># Ver si la cuenta está bloqueada</span>
-<span class="fn">Get-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-Properties</span> LockedOut, BadLogonCount, LastBadPasswordAttempt
-
-<span class="cm"># Buscar desde qué equipo se bloqueó (Event ID 4740 en el DC)</span>
-<span class="fn">Get-WinEvent</span> <span class="var">-ComputerName</span> <span class="str">"SRV-DC01"</span> <span class="var">-FilterHashtable</span> @{
-  LogName = <span class="str">'Security'</span>
-  Id = <span class="str">4740</span>
-} | <span class="fn">Where-Object</span> { <span class="var">$_</span>.Message <span class="var">-like</span> <span class="str">"*jgarcia*"</span> } | <span class="fn">Select-Object</span> <span class="var">-First</span> 5</code></pre>
-        <h5>Solución</h5>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># Desbloquear la cuenta</span>
-<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span>
-
-<span class="cm"># Si también expiró la contraseña, forzar cambio en próximo login</span>
-<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span></code></pre>
-        <div class="callout callout-tip" style="margin-top:1rem">
-          <span class="callout-icon">✅</span>
-          <div class="callout-content">
-            <strong>Investigar el origen</strong>
-            <p>Si el usuario se vuelve a bloquear rápido, hay algo que está intentando autenticarse con la contraseña antigua: sesiones de escritorio remoto guardadas, sincronización del móvil, tareas programadas, o unidades de red mapeadas con credenciales antiguas.</p>
+        <h5>Escenario</h5>
+        <p>El usuario ha fallado demasiadas veces la contraseña. Diagnóstico: Event ID 4740 en el DC.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">ADUC -> Propiedades del usuario -> Pestaña <strong>Account</strong> -> Marcar <strong>"Unlock account"</strong>.</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Unlock-ADAccount -Identity "jgarcia"</code>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TICKET 2 -->
-    <div class="ticket" onclick="toggleTicket(this)">
+    <div class="ticket" onclick="this.classList.toggle('open')">
       <div class="ticket-header">
-        <span class="ticket-id">TKT-002</span>
-        <span class="ticket-title">Equipo no se puede unir al dominio</span>
-        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-id">#002</span>
+        <span class="ticket-title">Olvido de Contraseña</span>
+        <span class="ticket-prio prio-high">Alta</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>Al intentar unir un equipo al dominio sale error: "No se puede poner en contacto con el dominio" o "El nombre de dominio especificado no existe".</p>
-        <h5>Causas comunes</h5>
-        <p>1. DNS mal configurado en el cliente (el más habitual). 2. El equipo no llega al DC por red. 3. Firewall bloqueando puertos. 4. Hora del sistema desincronizada (Kerberos).</p>
-        <h5>Diagnóstico</h5>
-        <span class="code-label">PowerShell — en el equipo cliente</span>
-        <pre><code><span class="cm"># ¿Resuelve el nombre del dominio?</span>
-<span class="fn">Resolve-DnsName</span> <span class="str">"empresa.local"</span>
-
-<span class="cm"># ¿Llega al DC por red?</span>
-<span class="fn">Test-NetConnection</span> <span class="var">-ComputerName</span> <span class="str">"192.168.1.10"</span> <span class="var">-Port</span> <span class="str">389</span>
-
-<span class="cm"># ¿El DNS del cliente apunta al DC?</span>
-<span class="fn">Get-DnsClientServerAddress</span>
-
-<span class="cm"># Comprobar hora del sistema</span>
-<span class="fn">w32tm</span> /query /status</code></pre>
-        <h5>Solución</h5>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># 1. Corregir DNS del cliente para que apunte al DC</span>
-<span class="fn">Set-DnsClientServerAddress</span> <span class="var">-InterfaceAlias</span> <span class="str">"Ethernet"</span> <span class="var">-ServerAddresses</span> <span class="str">"192.168.1.10"</span>
-
-<span class="cm"># 2. Sincronizar el reloj con el DC</span>
-<span class="fn">w32tm</span> /resync /force
-
-<span class="cm"># 3. Intentar unir al dominio de nuevo</span>
-<span class="fn">Add-Computer</span> <span class="var">-DomainName</span> <span class="str">"empresa.local"</span> <span class="var">-Credential</span> (<span class="fn">Get-Credential</span>) <span class="var">-Restart</span></code></pre>
-      </div>
-    </div>
-
-    <!-- TICKET 3 -->
-    <div class="ticket" onclick="toggleTicket(this)">
-      <div class="ticket-header">
-        <span class="ticket-id">TKT-003</span>
-        <span class="ticket-title">Las GPOs no se aplican en un equipo</span>
-        <span class="ticket-prio prio-med">MEDIUM</span>
-        <span class="ticket-chevron">▼</span>
-      </div>
-      <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>Has creado o modificado una GPO pero en el equipo no se refleja el cambio. El fondo de pantalla sigue siendo el de antes, o la restricción que pusiste no funciona.</p>
-        <h5>Causas comunes</h5>
-        <p>1. La GPO está vinculada a la OU incorrecta. 2. El equipo/usuario no está en esa OU. 3. Hay un filtro WMI o de seguridad que excluye el objeto. 4. La GPO tiene "Link Enabled" desactivado.</p>
-        <h5>Diagnóstico</h5>
-        <span class="code-label">PowerShell / CMD</span>
-        <pre><code><span class="cm"># Ver qué GPOs se aplican a este equipo/usuario y por qué</span>
-<span class="fn">gpresult</span> /r
-
-<span class="cm"># Generar reporte HTML detallado (abre el .html en el navegador)</span>
-<span class="fn">gpresult</span> /H C:\temp\gpo.html /F
-<span class="fn">Start-Process</span> <span class="str">"C:\temp\gpo.html"</span>
-
-<span class="cm"># Forzar descarga de GPOs desde el DC</span>
-<span class="fn">gpupdate</span> /force</code></pre>
-        <h5>Solución</h5>
-        <p>Revisar en el reporte de <code>gpresult</code> la sección "Denied GPOs". Si aparece la GPO denegada, verifica: la OU donde está el objeto, que el link esté habilitado, y que no haya un filtro de seguridad que excluya al equipo. En GPMC, la pestaña "Scope" de la GPO muestra dónde está vinculada y los filtros activos.</p>
-      </div>
-    </div>
-
-    <!-- TICKET 4 -->
-    <div class="ticket" onclick="toggleTicket(this)">
-      <div class="ticket-header">
-        <span class="ticket-id">TKT-004</span>
-        <span class="ticket-title">Restablecer contraseña de usuario</span>
-        <span class="ticket-prio prio-low">LOW</span>
-        <span class="ticket-chevron">▼</span>
-      </div>
-      <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>El usuario ha olvidado su contraseña o lleva tiempo sin acceder y ha expirado. Solicita que se la restablezcan.</p>
-        <h5>Solución</h5>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># Resetear contraseña y forzar cambio en el próximo login</span>
-<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> `
-  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="str">"Temporal123!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
-  <span class="var">-Reset</span>
-
-<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span>
-
-<span class="cm"># Si además estaba bloqueada</span>
-<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span></code></pre>
-        <div class="callout callout-warn">
-          <span class="callout-icon">⚠️</span>
-          <div class="callout-content">
-            <strong>Seguridad</strong>
-            <p>Siempre verifica la identidad del usuario antes de resetear una contraseña. Un atacante puede llamar haciéndose pasar por un compañero. Sigue el proceso de verificación de tu empresa (ticket firmado, validación por manager, etc.).</p>
+        <h5>Escenario</h5>
+        <p>El usuario no recuerda su clave tras las vacaciones y no puede trabajar.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Clic derecho -> <strong>Reset Password</strong> -> Marcar "User must change password at next logon".</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Set-ADAccountPassword "jgarcia" -Reset</code>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TICKET 5 -->
-    <div class="ticket" onclick="toggleTicket(this)">
+    <div class="ticket" onclick="this.classList.toggle('open')">
       <div class="ticket-header">
-        <span class="ticket-id">TKT-005</span>
-        <span class="ticket-title">Usuario no tiene acceso a una carpeta compartida</span>
-        <span class="ticket-prio prio-med">MEDIUM</span>
+        <span class="ticket-id">#003</span>
+        <span class="ticket-title">Unión de Equipo al Dominio</span>
+        <span class="ticket-prio prio-med">Media</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>El usuario accede a <code>\\servidor\Proyectos</code> y le sale "Acceso denegado" o directamente no ve la carpeta.</p>
-        <h5>Diagnóstico</h5>
-        <p>Los permisos en carpetas compartidas tienen dos capas: permisos de <strong>compartir (Share)</strong> y permisos <strong>NTFS</strong>. Las dos deben estar bien. Normalmente el problema está en que el usuario no está en el grupo correcto de AD.</p>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># Ver de qué grupos es miembro el usuario</span>
-<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> | <span class="fn">Select-Object</span> Name
-
-<span class="cm"># Ver permisos NTFS de la carpeta (en el servidor)</span>
-<span class="fn">Get-Acl</span> <span class="str">"\\servidor\d$\Proyectos"</span> | <span class="fn">Format-List</span></code></pre>
-        <h5>Solución</h5>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># Añadir el usuario al grupo que tiene acceso a esa carpeta</span>
-<span class="fn">Add-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"DL_Proyectos_Lectura"</span> <span class="var">-Members</span> <span class="str">"jgarcia"</span>
-
-<span class="cm"># El usuario debe cerrar sesión y volver a abrirla
-# para que el token Kerberos se actualice con el nuevo grupo</span></code></pre>
-        <div class="callout callout-info">
-          <span class="callout-icon">💡</span>
-          <div class="callout-content">
-            <strong>Token Kerberos</strong>
-            <p>Añadir a un usuario a un grupo no tiene efecto inmediato. El token de seguridad se crea al hacer login. El usuario debe cerrar sesión completamente (no solo bloquear) y volver a entrar para que el cambio surta efecto.</p>
+        <h5>Escenario</h5>
+        <p>Configurar un nuevo PC para que forme parte de la red corporativa.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">System -> About -> <strong>Rename this PC (advanced)</strong> -> Domain -> empresa.local.</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Add-Computer -DomainName "empresa.local" -Restart</code>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TICKET 6 -->
-    <div class="ticket" onclick="toggleTicket(this)">
+    <div class="ticket" onclick="this.classList.toggle('open')">
       <div class="ticket-header">
-        <span class="ticket-id">TKT-006</span>
-        <span class="ticket-title">Dar de baja a un empleado — offboarding</span>
-        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-id">#004</span>
+        <span class="ticket-title">Permisos: Añadir a Grupo</span>
+        <span class="ticket-prio prio-low">Baja</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>Un empleado deja la empresa. Hay que actuar rápido para cortar su acceso a todos los sistemas.</p>
-        <h5>Proceso estándar de offboarding</h5>
-        <span class="code-label">PowerShell — Checklist de offboarding</span>
-        <pre><code><span class="var">$usuario</span> = <span class="str">"jgarcia"</span>
-
-<span class="cm"># 1. Deshabilitar la cuenta inmediatamente</span>
-<span class="fn">Disable-ADAccount</span> <span class="var">-Identity</span> <span class="var">$usuario</span>
-
-<span class="cm"># 2. Cambiar contraseña a algo aleatorio (nadie la conocerá)</span>
-<span class="var">$newPass</span> = [<span class="fn">System.Web.Security.Membership</span>]::<span class="fn">GeneratePassword</span>(<span class="str">20</span>,<span class="str">5</span>)
-<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="var">$usuario</span> `
-  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="var">$newPass</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) <span class="var">-Reset</span>
-
-<span class="cm"># 3. Mover a OU de cuentas deshabilitadas</span>
-<span class="fn">Move-ADObject</span> <span class="var">-Identity</span> (<span class="fn">Get-ADUser</span> <span class="var">$usuario</span>).DistinguishedName `
-  <span class="var">-TargetPath</span> <span class="str">"OU=Deshabilitados,DC=empresa,DC=local"</span>
-
-<span class="cm"># 4. Quitar de todos los grupos (excepto Domain Users)</span>
-<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">$usuario</span> | <span class="fn">Where-Object</span> {<span class="var">$_</span>.Name <span class="var">-ne</span> <span class="str">"Domain Users"</span>} | <span class="fn">ForEach-Object</span> {
-  <span class="fn">Remove-ADGroupMember</span> <span class="var">-Identity</span> <span class="var">$_</span>.Name <span class="var">-Members</span> <span class="var">$usuario</span> <span class="var">-Confirm:$false</span>
-}
-
-<span class="cm"># 5. Añadir nota en la cuenta con la fecha</span>
-<span class="fn">Set-ADUser</span> <span class="var">$usuario</span> <span class="var">-Description</span> <span class="str">"BAJA: $(Get-Date -Format 'yyyy-MM-dd') - Motivo: fin contrato"</span></code></pre>
-        <div class="callout callout-danger">
-          <span class="callout-icon">🚨</span>
-          <div class="callout-content">
-            <strong>No borres la cuenta inmediatamente</strong>
-            <p>Deshabilita y espera 30-90 días antes de eliminarla. La cuenta puede estar como propietaria de archivos, buzones de correo, o ser necesaria para auditorías. Borrarla irreversiblemente puede crear problemas.</p>
+        <h5>Escenario</h5>
+        <p>Un usuario necesita acceso a los recursos del departamento de Marketing.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Propiedades -> <strong>Member Of</strong> -> Add -> "SG_Marketing".</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Add-ADGroupMember -Identity "SG_Marketing" -Members "jgarcia"</code>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TICKET 7 -->
-    <div class="ticket" onclick="toggleTicket(this)">
+    <div class="ticket" onclick="this.classList.toggle('open')">
       <div class="ticket-header">
-        <span class="ticket-id">TKT-007</span>
-        <span class="ticket-title">El DC muestra errores de replicación</span>
-        <span class="ticket-prio prio-high">HIGH</span>
+        <span class="ticket-id">#005</span>
+        <span class="ticket-title">Forzar GPOs (Políticas)</span>
+        <span class="ticket-prio prio-med">Media</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Síntoma</h5>
-        <p>Tienes más de un DC y los cambios hechos en uno no aparecen en el otro. O bien <code>dcdiag</code> muestra errores de replicación.</p>
-        <h5>Diagnóstico</h5>
-        <span class="code-label">PowerShell / CMD</span>
-        <pre><code><span class="cm"># Ver estado de replicación entre todos los DCs</span>
-<span class="fn">repadmin</span> /replsummary
+        <h5>Escenario</h5>
+        <p>Se ha aplicado un cambio de fondo de pantalla pero el usuario no lo ve aún.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Reiniciar el equipo cliente o esperar el intervalo automático (90 min).</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">gpupdate /force</code>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<span class="cm"># Ver errores de replicación detallados</span>
-<span class="fn">repadmin</span> /showrepl
+    <div class="ticket" onclick="this.classList.toggle('open')">
+      <div class="ticket-header">
+        <span class="ticket-id">#006</span>
+        <span class="ticket-title">Baja de Empleado</span>
+        <span class="ticket-prio prio-high">Alta</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Escenario</h5>
+        <p>Un empleado deja la empresa y hay que asegurar que no acceda a los datos.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Clic derecho -> <strong>Disable Account</strong> -> Mover a OU "Deshabilitados".</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Disable-ADAccount -Identity "jgarcia"</code>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<span class="cm"># Diagnóstico completo del DC</span>
-<span class="fn">dcdiag</span> /v /test:replications</code></pre>
-        <h5>Forzar replicación</h5>
-        <span class="code-label">PowerShell</span>
-        <pre><code><span class="cm"># Forzar replicación de todos los DCs</span>
-<span class="fn">repadmin</span> /syncall /AdeP
-
-<span class="cm"># Forzar replicación desde un DC específico</span>
-<span class="fn">repadmin</span> /replicate SRV-DC02 SRV-DC01 DC=empresa,DC=local</code></pre>
+    <div class="ticket" onclick="this.classList.toggle('open')">
+      <div class="ticket-header">
+        <span class="ticket-id">#007</span>
+        <span class="ticket-title">Errores de Replicación</span>
+        <span class="ticket-prio prio-high">Alta</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Escenario</h5>
+        <p>Los cambios en el Servidor A no se reflejan en el Servidor B.</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
+            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Sites & Services -> Servers -> NTDS Settings -> <strong>Replicate Now</strong>.</p>
+          </div>
+          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
+            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
+            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">repadmin /syncall /AdeP</code>
+          </div>
+        </div>
       </div>
     </div>
   </section>
