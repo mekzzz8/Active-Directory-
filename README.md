@@ -1,7 +1,3 @@
-# Active-Directory-
-Todo lo que necesitas saber sobre Active Directory: qué es, cómo desplegarlo en un lab casero y cómo resolver los tickets más habituales que te encontrarás en tu día a día como técnico IT.
-
-
 # Active Directory Lab: Gestión de Identidades y Troubleshooting Dual
 
 Este proyecto documenta el despliegue, configuración y administración de un entorno de **Active Directory** en Windows Server. La metodología aplicada se centra en el **Troubleshooting Dual**, demostrando la capacidad de resolver incidencias tanto mediante interfaz gráfica (GUI) como a través de automatización con **PowerShell**.
