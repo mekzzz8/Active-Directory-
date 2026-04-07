@@ -1,4 +1,4 @@
-# Active Directory Lab: Gestión de Identidades y Troubleshooting Dual
+# Active Directory Lab: Gestión de Identidades 
 
 Este proyecto documenta el despliegue, configuración y administración de un entorno de **Active Directory** en Windows Server. La metodología aplicada se centra en el **Troubleshooting Dual**, demostrando la capacidad de resolver incidencias tanto mediante interfaz gráfica (GUI) como a través de automatización con **PowerShell**.
 
