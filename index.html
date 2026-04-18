@@ -530,6 +530,8 @@
 <nav>
   <div class="nav-logo">AD/<span>guide</span></div>
   <ul class="nav-links">
+    <li><a href="#lab">Lab Parallels</a></li>
+    <li><a href="#practica">Prácticas</a></li>
     <li><a href="#que-es">¿Qué es AD?</a></li>
     <li><a href="#conceptos">Conceptos</a></li>
     <li><a href="#despliegue">Despliegue</a></li>
@@ -554,6 +556,339 @@
       <span class="badge badge-green">Nivel Junior</span>
     </div>
   </div>
+
+  <!-- SECCIÓN 0: LAB SETUP PARALLELS -->
+  <section id="lab">
+    <div class="section-header">
+      <span class="section-num">00</span>
+      <h2>Preparar el Lab en Parallels</h2>
+    </div>
+
+    <p>El lab mínimo tiene dos VMs corriendo en <strong>Parallels Desktop</strong> sobre Mac: un <strong>Windows Server 2022</strong> como Domain Controller y un <strong>Windows 11</strong> como equipo cliente. Ambas se conectan a través de una red privada interna sin salida a internet.</p>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-content">
+        <strong>Apple Silicon (M1/M2/M3) — lee esto antes de descargar nada</strong>
+        <p>En Macs con chip Apple Silicon las ISOs estándar x86_64 de Windows <strong>no arrancan</strong>. Necesitas la ISO ARM64 de Windows Server 2022 (disponible en el Evaluation Center de Microsoft seleccionando arquitectura ARM) y Windows 11 ARM (descargable desde la web de Microsoft para ARM). En Macs Intel puedes usar las ISOs x86 normales.</p>
+      </div>
+    </div>
+
+    <h3>Requisitos y software</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Software</th><th>Para qué</th><th>Dónde</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Parallels Desktop 18+</code></td>
+            <td>Hipervisor — corre las VMs en Mac</td>
+            <td>parallels.com (de pago, ~99€/año)</td>
+          </tr>
+          <tr>
+            <td><code>Windows Server 2022 ISO</code></td>
+            <td>VM del Domain Controller</td>
+            <td>microsoft.com/evalcenter — gratis 180 días</td>
+          </tr>
+          <tr>
+            <td><code>Windows 11 ISO</code></td>
+            <td>VM del equipo cliente</td>
+            <td>microsoft.com/software-download/windows11</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💻</span>
+      <div class="callout-content">
+        <strong>Requisitos del Mac anfitrión</strong>
+        <p>macOS Ventura o Sonoma · 16 GB RAM recomendado (8 GB mínimo) · 80 GB libres en disco · Parallels Desktop 18 o superior</p>
+      </div>
+    </div>
+
+    <h3>Arquitectura del lab</h3>
+
+    <div class="diagram">
+      <div style="text-align:center; padding:1rem 0; line-height:2.5;">
+        <div style="margin-bottom:0.5rem; color:var(--muted); font-size:0.7rem;">🍎 MAC ANFITRIÓN — Parallels Desktop</div>
+        <div style="border:1px dashed var(--border); border-radius:8px; padding:1.5rem; display:inline-block; text-align:left; min-width:420px;">
+          <div style="display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <span class="node node-dc">🖥️ VM 1 — Windows Server 2022</span><br>
+              <span style="font-size:0.7rem; color:var(--muted)">RAM: 3 GB · Disco: 50 GB</span><br>
+              <span style="font-size:0.7rem; color:var(--accent)">IP: 192.168.100.10</span><br>
+              <span style="font-size:0.7rem; color:var(--muted)">Rol: Domain Controller (DC01)</span>
+            </div>
+            <div style="display:flex; align-items:center; color:var(--muted); font-size:1.2rem;">⟷</div>
+            <div style="text-align:center;">
+              <span class="node node-user">💻 VM 2 — Windows 11</span><br>
+              <span style="font-size:0.7rem; color:var(--muted)">RAM: 2 GB · Disco: 30 GB</span><br>
+              <span style="font-size:0.7rem; color:var(--accent)">IP: 192.168.100.20</span><br>
+              <span style="font-size:0.7rem; color:var(--muted)">Rol: Equipo cliente (CLIENT01)</span>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:1rem; color:var(--muted); font-size:0.7rem;">
+            🔗 Red privada Parallels: <span style="color:var(--warn)">Host-Only</span> — las VMs se ven entre sí, sin internet
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Paso a paso — Montar el lab desde cero</h3>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Crear la red privada en Parallels</h4>
+          <p>Primero crea la red interna que usarán ambas VMs. Esto es lo primero porque necesitas asignarla al crear cada VM.</p>
+          <p>Ve a: <strong>Parallels Desktop (menú superior) → Preferencias → Red → botón "+"</strong> y crea una nueva red con estos valores:</p>
+          <div class="callout callout-info" style="margin:0">
+            <span class="callout-icon">🔧</span>
+            <div class="callout-content">
+              <strong>Configuración de la red privada</strong>
+              <p>Nombre: <code>AD-Lab-Net</code> · Tipo: <strong>Host-Only</strong> · Rango IP: <code>192.168.100.0</code> · Máscara: <code>255.255.255.0</code> · DHCP: <strong>desactivado</strong> (asignaremos IPs estáticas manualmente)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Crear la VM del DC (Windows Server 2022)</h4>
+          <p>Parallels Desktop → <strong>+</strong> (Nueva VM) → <strong>Instalar Windows u otro sistema operativo desde una imagen</strong> → selecciona la ISO de Windows Server 2022.</p>
+          <p>Cuando Parallels detecte la ISO, configura antes de arrancar. Ve a <strong>Configuración de la VM → Hardware</strong>:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Parámetro</th><th>Valor</th></tr></thead>
+              <tbody>
+                <tr><td>Nombre de la VM</td><td><code>AD-DC01</code></td></tr>
+                <tr><td>RAM</td><td>3072 MB</td></tr>
+                <tr><td>CPU</td><td>2 núcleos</td></tr>
+                <tr><td>Disco</td><td>50 GB</td></tr>
+                <tr><td>Red → Adaptador 1</td><td><strong>AD-Lab-Net</strong> (la red que creaste en el paso 1)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Instalar Windows Server 2022</h4>
+          <p>Arranca la VM. Durante la instalación selecciona <strong>Windows Server 2022 Standard Evaluation (Experiencia de escritorio)</strong> — la versión con interfaz gráfica. Completa la instalación y pon una contraseña al Administrador.</p>
+          <div class="callout callout-tip" style="margin:0">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              <strong>Instala Parallels Tools</strong>
+              <p>Nada más entrar en la VM: <strong>Acciones → Instalar Parallels Tools</strong>. Se instalan automáticamente y mejoran el rendimiento, permiten copiar/pegar entre Mac y VM, y ajustan la resolución de pantalla.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Configurar IP estática en el DC</h4>
+          <p>El DC nunca debe usar DHCP. Abre <strong>PowerShell como Administrador</strong> dentro de la VM:</p>
+          <span class="code-label">PowerShell — VM del DC (AD-DC01)</span>
+          <pre><code><span class="cm"># Ver nombre del adaptador de red</span>
+<span class="fn">Get-NetAdapter</span>
+
+<span class="cm"># Asignar IP estática (ajusta el nombre del adaptador si difiere)</span>
+<span class="fn">New-NetIPAddress</span> `
+  <span class="var">-InterfaceAlias</span>  <span class="str">"Ethernet"</span> `
+  <span class="var">-IPAddress</span>       <span class="str">"192.168.100.10"</span> `
+  <span class="var">-PrefixLength</span>    <span class="str">24</span>
+
+<span class="cm"># DNS: el DC apunta a sí mismo</span>
+<span class="fn">Set-DnsClientServerAddress</span> `
+  <span class="var">-InterfaceAlias</span>  <span class="str">"Ethernet"</span> `
+  <span class="var">-ServerAddresses</span> <span class="str">"192.168.100.10"</span>
+
+<span class="cm"># Renombrar el servidor y reiniciar</span>
+<span class="fn">Rename-Computer</span> <span class="var">-NewName</span> <span class="str">"DC01"</span> <span class="var">-Restart</span></code></pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Instalar AD DS y promover a Domain Controller</h4>
+          <p>Tras el reinicio, abre PowerShell como Administrador e instala el rol:</p>
+          <span class="code-label">PowerShell — VM del DC</span>
+          <pre><code><span class="cm"># Instalar el rol de Active Directory</span>
+<span class="fn">Install-WindowsFeature</span> <span class="var">-Name</span> AD-Domain-Services <span class="var">-IncludeManagementTools</span>
+
+<span class="cm"># Crear el forest y el dominio lab.local</span>
+<span class="fn">Install-ADDSForest</span> `
+  <span class="var">-DomainName</span>                    <span class="str">"lab.local"</span> `
+  <span class="var">-DomainNetbiosName</span>             <span class="str">"LAB"</span> `
+  <span class="var">-InstallDns</span> `
+  <span class="var">-SafeModeAdministratorPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="str">"Lab@2024!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+  <span class="var">-Force</span>
+
+<span class="cm"># La VM se reinicia sola — es parte del proceso normal</span></code></pre>
+          <div class="callout callout-info" style="margin:0.75rem 0 0">
+            <span class="callout-icon">💡</span>
+            <div class="callout-content">
+              <strong>Tras el reinicio</strong>
+              <p>Inicia sesión como <code>LAB\Administrator</code>. Verifica que el dominio está activo con <code>Get-ADDomain</code> en PowerShell.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h4>Crear la VM del cliente (Windows 11)</h4>
+          <p>Parallels Desktop → <strong>+</strong> → selecciona la ISO de Windows 11. Configura la VM antes de arrancar:</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Parámetro</th><th>Valor</th></tr></thead>
+              <tbody>
+                <tr><td>Nombre de la VM</td><td><code>AD-CLIENT01</code></td></tr>
+                <tr><td>RAM</td><td>2048 MB</td></tr>
+                <tr><td>CPU</td><td>2 núcleos</td></tr>
+                <tr><td>Disco</td><td>30 GB</td></tr>
+                <tr><td>Red → Adaptador 1</td><td><strong>AD-Lab-Net</strong> (la misma red privada del DC)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:0.75rem">Instala Windows 11. Durante la instalación, cuando pida cuenta Microsoft, usa <strong>cuenta local</strong> (en Windows 11 Home: desconecta la red primero; en Pro: elige "Configurar para una organización" o "Cuenta offline").</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <h4>Configurar IP estática en el cliente</h4>
+          <span class="code-label">PowerShell — VM del cliente (AD-CLIENT01)</span>
+          <pre><code><span class="cm"># IP estática del cliente</span>
+<span class="fn">New-NetIPAddress</span> `
+  <span class="var">-InterfaceAlias</span>  <span class="str">"Ethernet"</span> `
+  <span class="var">-IPAddress</span>       <span class="str">"192.168.100.20"</span> `
+  <span class="var">-PrefixLength</span>    <span class="str">24</span>
+
+<span class="cm"># DNS apuntando al DC — CRÍTICO para poder unirse al dominio</span>
+<span class="fn">Set-DnsClientServerAddress</span> `
+  <span class="var">-InterfaceAlias</span>  <span class="str">"Ethernet"</span> `
+  <span class="var">-ServerAddresses</span> <span class="str">"192.168.100.10"</span>
+
+<span class="cm"># Verificar que el cliente llega al DC</span>
+<span class="fn">ping</span> 192.168.100.10
+<span class="fn">Resolve-DnsName</span> <span class="str">"lab.local"</span></code></pre>
+          <div class="callout callout-warn" style="margin:0.75rem 0 0">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-content">
+              <strong>Si el ping falla</strong>
+              <p>El firewall de Windows Server bloquea ping por defecto. En el DC ejecuta: <code>netsh advfirewall firewall add rule name="ICMP Allow" protocol=icmpv4:8,any dir=in action=allow</code>. O desactiva el firewall temporalmente para el lab.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">8</div>
+        <div class="step-body">
+          <h4>Unir el cliente al dominio</h4>
+          <span class="code-label">PowerShell — VM del cliente</span>
+          <pre><code><span class="fn">Add-Computer</span> `
+  <span class="var">-DomainName</span>  <span class="str">"lab.local"</span> `
+  <span class="var">-Credential</span> (<span class="fn">Get-Credential</span>) `
+  <span class="var">-Restart</span>
+
+<span class="cm"># Cuando pida credenciales:
+# Usuario:    LAB\Administrator
+# Contraseña: la que pusiste al instalar WS2022</span></code></pre>
+          <div class="callout callout-tip" style="margin:0.75rem 0 0">
+            <span class="callout-icon">✅</span>
+            <div class="callout-content">
+              <strong>Verificar desde el DC</strong>
+              <p>Tras el reinicio del cliente, en el DC ejecuta <code>Get-ADComputer -Filter *</code>. Debe aparecer <code>CLIENT01</code>. En la pantalla de login del cliente ya aparecerá la opción de iniciar sesión en el dominio <code>LAB</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">9</div>
+        <div class="step-body">
+          <h4>Hacer snapshots — tu red de seguridad</h4>
+          <p>Con el lab en estado limpio y funcional, saca un snapshot de cada VM. En Parallels puedes hacerlo con la VM encendida.</p>
+          <div class="callout callout-info" style="margin:0">
+            <span class="callout-icon">📸</span>
+            <div class="callout-content">
+              <strong>Parallels — Acciones → Tomar snapshot</strong>
+              <p>Nombres sugeridos: <code>DC01 · Lab limpio · AD activo</code> y <code>CLIENT01 · Lab limpio · Unido al dominio</code>. Si algo se rompe practicando, restauras en segundos sin reinstalar nada.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h3>Opción alternativa — Importar OVA preconfigurada</h3>
+
+    <p>Si no quieres instalar desde cero, puedes importar una OVA (máquina virtual pre-empaquetada). Es la forma más rápida de tener el lab listo.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Fuente</th><th>Qué incluye</th><th>URL</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Microsoft Evaluation Center</code></td>
+            <td>VHD/VHDX de WS2022 (convertible a OVA)</td>
+            <td>microsoft.com/evalcenter</td>
+          </tr>
+          <tr>
+            <td><code>DetectionLab</code></td>
+            <td>Lab AD completo: DC + clientes + logs de seguridad</td>
+            <td>github.com/clong/DetectionLab</td>
+          </tr>
+          <tr>
+            <td><code>GOAD</code></td>
+            <td>AD con múltiples dominios, ideal para prácticas de ataque/defensa</td>
+            <td>github.com/Orange-Cyberdefense/GOAD</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <span class="code-label">Terminal (Mac) — Importar OVA en Parallels</span>
+    <pre><code><span class="cm"># Parallels incluye la herramienta prl_convert para importar OVAs</span>
+/Applications/Parallels\ Desktop.app/Contents/MacOS/prl_convert \
+  /Users/tuusuario/Downloads/lab-dc.ova \
+  --dst ~/Parallels/
+
+<span class="cm"># Una vez convertido, abre el .pvm resultante</span>
+open ~/Parallels/lab-dc.pvm
+
+<span class="cm"># Si la importación falla (OVAs de terceros a veces fallan),
+# usa este método alternativo: importa en VirtualBox primero
+# y luego migra con la herramienta de Parallels</span>
+VBoxManage import /ruta/archivo.ova
+<span class="cm"># Parallels Desktop → Nueva → Migrar VM existente → selecciona la VM de VirtualBox</span></code></pre>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div class="callout-content">
+        <strong>Tras importar una OVA — revisa la red</strong>
+        <p>La red de la VM importada puede quedar en modo NAT o Bridged. Ve a Configuración → Hardware → Red y cámbiala a <strong>AD-Lab-Net</strong>. Luego verifica dentro de la VM que la IP sigue siendo la correcta con <code>ipconfig /all</code>.</p>
+      </div>
+    </div>
+
+  </section>
 
   <!-- SECCIÓN 1: QUÉ ES AD -->
   <section id="que-es">
@@ -971,172 +1306,263 @@
 <span class="fn">Invoke-GPUpdate</span> <span class="var">-Computer</span> <span class="str">"PC-001"</span> <span class="var">-Force</span></code></pre>
   </section>
 
-<section id="tickets">
+  <!-- SECCIÓN 5: TICKETS -->
+  <section id="tickets">
     <div class="section-header">
       <span class="section-num">05</span>
-      <h2>Resolución de Tickets IT (Modo Dual)</h2>
+      <h2>Tickets típicos en IT</h2>
     </div>
 
-    <p>En el soporte técnico real, la eficiencia es clave. Aquí resolvemos los 7 casos más comunes combinando la facilidad de la interfaz gráfica (GUI) con la potencia de los comandos (PowerShell).</p>
+    <p>Estos son los problemas más frecuentes que resolverás trabajando con Active Directory. Haz clic en cada ticket para ver el diagnóstico y la solución.</p>
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
+    <!-- TICKET 1 -->
+    <div class="ticket" onclick="toggleTicket(this)">
       <div class="ticket-header">
-        <span class="ticket-id">#001</span>
-        <span class="ticket-title">Cuenta Bloqueada (User Lockout)</span>
-        <span class="ticket-prio prio-high">Alta</span>
+        <span class="ticket-id">TKT-001</span>
+        <span class="ticket-title">Usuario no puede iniciar sesión — cuenta bloqueada</span>
+        <span class="ticket-prio prio-high">HIGH</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>El usuario ha fallado demasiadas veces la contraseña. Diagnóstico: Event ID 4740 en el DC.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">ADUC -> Propiedades del usuario -> Pestaña <strong>Account</strong> -> Marcar <strong>"Unlock account"</strong>.</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Unlock-ADAccount -Identity "jgarcia"</code>
+        <h5>Síntoma</h5>
+        <p>El usuario llama diciendo que le sale "Tu cuenta está bloqueada" o "El administrador ha bloqueado tu cuenta". No puede entrar a ningún equipo del dominio.</p>
+        <h5>Causa</h5>
+        <p>Ha superado el número máximo de intentos de contraseña fallidos definido en la política de contraseñas. Muy común después de vacaciones (contraseña expirada) o después de cambiar contraseña en un sitio y no en otro.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Ver si la cuenta está bloqueada</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-Properties</span> LockedOut, BadLogonCount, LastBadPasswordAttempt
+
+<span class="cm"># Buscar desde qué equipo se bloqueó (Event ID 4740 en el DC)</span>
+<span class="fn">Get-WinEvent</span> <span class="var">-ComputerName</span> <span class="str">"SRV-DC01"</span> <span class="var">-FilterHashtable</span> @{
+  LogName = <span class="str">'Security'</span>
+  Id = <span class="str">4740</span>
+} | <span class="fn">Where-Object</span> { <span class="var">$_</span>.Message <span class="var">-like</span> <span class="str">"*jgarcia*"</span> } | <span class="fn">Select-Object</span> <span class="var">-First</span> 5</code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Desbloquear la cuenta</span>
+<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># Si también expiró la contraseña, forzar cambio en próximo login</span>
+<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span></code></pre>
+        <div class="callout callout-tip" style="margin-top:1rem">
+          <span class="callout-icon">✅</span>
+          <div class="callout-content">
+            <strong>Investigar el origen</strong>
+            <p>Si el usuario se vuelve a bloquear rápido, hay algo que está intentando autenticarse con la contraseña antigua: sesiones de escritorio remoto guardadas, sincronización del móvil, tareas programadas, o unidades de red mapeadas con credenciales antiguas.</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
+    <!-- TICKET 2 -->
+    <div class="ticket" onclick="toggleTicket(this)">
       <div class="ticket-header">
-        <span class="ticket-id">#002</span>
-        <span class="ticket-title">Olvido de Contraseña</span>
-        <span class="ticket-prio prio-high">Alta</span>
+        <span class="ticket-id">TKT-002</span>
+        <span class="ticket-title">Equipo no se puede unir al dominio</span>
+        <span class="ticket-prio prio-high">HIGH</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>El usuario no recuerda su clave tras las vacaciones y no puede trabajar.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Clic derecho -> <strong>Reset Password</strong> -> Marcar "User must change password at next logon".</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Set-ADAccountPassword "jgarcia" -Reset</code>
+        <h5>Síntoma</h5>
+        <p>Al intentar unir un equipo al dominio sale error: "No se puede poner en contacto con el dominio" o "El nombre de dominio especificado no existe".</p>
+        <h5>Causas comunes</h5>
+        <p>1. DNS mal configurado en el cliente (el más habitual). 2. El equipo no llega al DC por red. 3. Firewall bloqueando puertos. 4. Hora del sistema desincronizada (Kerberos).</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell — en el equipo cliente</span>
+        <pre><code><span class="cm"># ¿Resuelve el nombre del dominio?</span>
+<span class="fn">Resolve-DnsName</span> <span class="str">"empresa.local"</span>
+
+<span class="cm"># ¿Llega al DC por red?</span>
+<span class="fn">Test-NetConnection</span> <span class="var">-ComputerName</span> <span class="str">"192.168.1.10"</span> <span class="var">-Port</span> <span class="str">389</span>
+
+<span class="cm"># ¿El DNS del cliente apunta al DC?</span>
+<span class="fn">Get-DnsClientServerAddress</span>
+
+<span class="cm"># Comprobar hora del sistema</span>
+<span class="fn">w32tm</span> /query /status</code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># 1. Corregir DNS del cliente para que apunte al DC</span>
+<span class="fn">Set-DnsClientServerAddress</span> <span class="var">-InterfaceAlias</span> <span class="str">"Ethernet"</span> <span class="var">-ServerAddresses</span> <span class="str">"192.168.1.10"</span>
+
+<span class="cm"># 2. Sincronizar el reloj con el DC</span>
+<span class="fn">w32tm</span> /resync /force
+
+<span class="cm"># 3. Intentar unir al dominio de nuevo</span>
+<span class="fn">Add-Computer</span> <span class="var">-DomainName</span> <span class="str">"empresa.local"</span> <span class="var">-Credential</span> (<span class="fn">Get-Credential</span>) <span class="var">-Restart</span></code></pre>
+      </div>
+    </div>
+
+    <!-- TICKET 3 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-003</span>
+        <span class="ticket-title">Las GPOs no se aplican en un equipo</span>
+        <span class="ticket-prio prio-med">MEDIUM</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>Has creado o modificado una GPO pero en el equipo no se refleja el cambio. El fondo de pantalla sigue siendo el de antes, o la restricción que pusiste no funciona.</p>
+        <h5>Causas comunes</h5>
+        <p>1. La GPO está vinculada a la OU incorrecta. 2. El equipo/usuario no está en esa OU. 3. Hay un filtro WMI o de seguridad que excluye el objeto. 4. La GPO tiene "Link Enabled" desactivado.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell / CMD</span>
+        <pre><code><span class="cm"># Ver qué GPOs se aplican a este equipo/usuario y por qué</span>
+<span class="fn">gpresult</span> /r
+
+<span class="cm"># Generar reporte HTML detallado (abre el .html en el navegador)</span>
+<span class="fn">gpresult</span> /H C:\temp\gpo.html /F
+<span class="fn">Start-Process</span> <span class="str">"C:\temp\gpo.html"</span>
+
+<span class="cm"># Forzar descarga de GPOs desde el DC</span>
+<span class="fn">gpupdate</span> /force</code></pre>
+        <h5>Solución</h5>
+        <p>Revisar en el reporte de <code>gpresult</code> la sección "Denied GPOs". Si aparece la GPO denegada, verifica: la OU donde está el objeto, que el link esté habilitado, y que no haya un filtro de seguridad que excluya al equipo. En GPMC, la pestaña "Scope" de la GPO muestra dónde está vinculada y los filtros activos.</p>
+      </div>
+    </div>
+
+    <!-- TICKET 4 -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">TKT-004</span>
+        <span class="ticket-title">Restablecer contraseña de usuario</span>
+        <span class="ticket-prio prio-low">LOW</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Síntoma</h5>
+        <p>El usuario ha olvidado su contraseña o lleva tiempo sin acceder y ha expirado. Solicita que se la restablezcan.</p>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Resetear contraseña y forzar cambio en el próximo login</span>
+<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> `
+  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="str">"Temporal123!"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+  <span class="var">-Reset</span>
+
+<span class="fn">Set-ADUser</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span>
+
+<span class="cm"># Si además estaba bloqueada</span>
+<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span></code></pre>
+        <div class="callout callout-warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-content">
+            <strong>Seguridad</strong>
+            <p>Siempre verifica la identidad del usuario antes de resetear una contraseña. Un atacante puede llamar haciéndose pasar por un compañero. Sigue el proceso de verificación de tu empresa (ticket firmado, validación por manager, etc.).</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
+    <!-- TICKET 5 -->
+    <div class="ticket" onclick="toggleTicket(this)">
       <div class="ticket-header">
-        <span class="ticket-id">#003</span>
-        <span class="ticket-title">Unión de Equipo al Dominio</span>
-        <span class="ticket-prio prio-med">Media</span>
+        <span class="ticket-id">TKT-005</span>
+        <span class="ticket-title">Usuario no tiene acceso a una carpeta compartida</span>
+        <span class="ticket-prio prio-med">MEDIUM</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>Configurar un nuevo PC para que forme parte de la red corporativa.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">System -> About -> <strong>Rename this PC (advanced)</strong> -> Domain -> empresa.local.</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Add-Computer -DomainName "empresa.local" -Restart</code>
+        <h5>Síntoma</h5>
+        <p>El usuario accede a <code>\\servidor\Proyectos</code> y le sale "Acceso denegado" o directamente no ve la carpeta.</p>
+        <h5>Diagnóstico</h5>
+        <p>Los permisos en carpetas compartidas tienen dos capas: permisos de <strong>compartir (Share)</strong> y permisos <strong>NTFS</strong>. Las dos deben estar bien. Normalmente el problema está en que el usuario no está en el grupo correcto de AD.</p>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Ver de qué grupos es miembro el usuario</span>
+<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">-Identity</span> <span class="str">"jgarcia"</span> | <span class="fn">Select-Object</span> Name
+
+<span class="cm"># Ver permisos NTFS de la carpeta (en el servidor)</span>
+<span class="fn">Get-Acl</span> <span class="str">"\\servidor\d$\Proyectos"</span> | <span class="fn">Format-List</span></code></pre>
+        <h5>Solución</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Añadir el usuario al grupo que tiene acceso a esa carpeta</span>
+<span class="fn">Add-ADGroupMember</span> <span class="var">-Identity</span> <span class="str">"DL_Proyectos_Lectura"</span> <span class="var">-Members</span> <span class="str">"jgarcia"</span>
+
+<span class="cm"># El usuario debe cerrar sesión y volver a abrirla
+# para que el token Kerberos se actualice con el nuevo grupo</span></code></pre>
+        <div class="callout callout-info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-content">
+            <strong>Token Kerberos</strong>
+            <p>Añadir a un usuario a un grupo no tiene efecto inmediato. El token de seguridad se crea al hacer login. El usuario debe cerrar sesión completamente (no solo bloquear) y volver a entrar para que el cambio surta efecto.</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
+    <!-- TICKET 6 -->
+    <div class="ticket" onclick="toggleTicket(this)">
       <div class="ticket-header">
-        <span class="ticket-id">#004</span>
-        <span class="ticket-title">Permisos: Añadir a Grupo</span>
-        <span class="ticket-prio prio-low">Baja</span>
+        <span class="ticket-id">TKT-006</span>
+        <span class="ticket-title">Dar de baja a un empleado — offboarding</span>
+        <span class="ticket-prio prio-high">HIGH</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>Un usuario necesita acceso a los recursos del departamento de Marketing.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Propiedades -> <strong>Member Of</strong> -> Add -> "SG_Marketing".</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Add-ADGroupMember -Identity "SG_Marketing" -Members "jgarcia"</code>
+        <h5>Síntoma</h5>
+        <p>Un empleado deja la empresa. Hay que actuar rápido para cortar su acceso a todos los sistemas.</p>
+        <h5>Proceso estándar de offboarding</h5>
+        <span class="code-label">PowerShell — Checklist de offboarding</span>
+        <pre><code><span class="var">$usuario</span> = <span class="str">"jgarcia"</span>
+
+<span class="cm"># 1. Deshabilitar la cuenta inmediatamente</span>
+<span class="fn">Disable-ADAccount</span> <span class="var">-Identity</span> <span class="var">$usuario</span>
+
+<span class="cm"># 2. Cambiar contraseña a algo aleatorio (nadie la conocerá)</span>
+<span class="var">$newPass</span> = [<span class="fn">System.Web.Security.Membership</span>]::<span class="fn">GeneratePassword</span>(<span class="str">20</span>,<span class="str">5</span>)
+<span class="fn">Set-ADAccountPassword</span> <span class="var">-Identity</span> <span class="var">$usuario</span> `
+  <span class="var">-NewPassword</span> (<span class="fn">ConvertTo-SecureString</span> <span class="var">$newPass</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) <span class="var">-Reset</span>
+
+<span class="cm"># 3. Mover a OU de cuentas deshabilitadas</span>
+<span class="fn">Move-ADObject</span> <span class="var">-Identity</span> (<span class="fn">Get-ADUser</span> <span class="var">$usuario</span>).DistinguishedName `
+  <span class="var">-TargetPath</span> <span class="str">"OU=Deshabilitados,DC=empresa,DC=local"</span>
+
+<span class="cm"># 4. Quitar de todos los grupos (excepto Domain Users)</span>
+<span class="fn">Get-ADPrincipalGroupMembership</span> <span class="var">$usuario</span> | <span class="fn">Where-Object</span> {<span class="var">$_</span>.Name <span class="var">-ne</span> <span class="str">"Domain Users"</span>} | <span class="fn">ForEach-Object</span> {
+  <span class="fn">Remove-ADGroupMember</span> <span class="var">-Identity</span> <span class="var">$_</span>.Name <span class="var">-Members</span> <span class="var">$usuario</span> <span class="var">-Confirm:$false</span>
+}
+
+<span class="cm"># 5. Añadir nota en la cuenta con la fecha</span>
+<span class="fn">Set-ADUser</span> <span class="var">$usuario</span> <span class="var">-Description</span> <span class="str">"BAJA: $(Get-Date -Format 'yyyy-MM-dd') - Motivo: fin contrato"</span></code></pre>
+        <div class="callout callout-danger">
+          <span class="callout-icon">🚨</span>
+          <div class="callout-content">
+            <strong>No borres la cuenta inmediatamente</strong>
+            <p>Deshabilita y espera 30-90 días antes de eliminarla. La cuenta puede estar como propietaria de archivos, buzones de correo, o ser necesaria para auditorías. Borrarla irreversiblemente puede crear problemas.</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
+    <!-- TICKET 7 -->
+    <div class="ticket" onclick="toggleTicket(this)">
       <div class="ticket-header">
-        <span class="ticket-id">#005</span>
-        <span class="ticket-title">Forzar GPOs (Políticas)</span>
-        <span class="ticket-prio prio-med">Media</span>
+        <span class="ticket-id">TKT-007</span>
+        <span class="ticket-title">El DC muestra errores de replicación</span>
+        <span class="ticket-prio prio-high">HIGH</span>
         <span class="ticket-chevron">▼</span>
       </div>
       <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>Se ha aplicado un cambio de fondo de pantalla pero el usuario no lo ve aún.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Reiniciar el equipo cliente o esperar el intervalo automático (90 min).</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">gpupdate /force</code>
-          </div>
-        </div>
-      </div>
-    </div>
+        <h5>Síntoma</h5>
+        <p>Tienes más de un DC y los cambios hechos en uno no aparecen en el otro. O bien <code>dcdiag</code> muestra errores de replicación.</p>
+        <h5>Diagnóstico</h5>
+        <span class="code-label">PowerShell / CMD</span>
+        <pre><code><span class="cm"># Ver estado de replicación entre todos los DCs</span>
+<span class="fn">repadmin</span> /replsummary
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
-      <div class="ticket-header">
-        <span class="ticket-id">#006</span>
-        <span class="ticket-title">Baja de Empleado</span>
-        <span class="ticket-prio prio-high">Alta</span>
-        <span class="ticket-chevron">▼</span>
-      </div>
-      <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>Un empleado deja la empresa y hay que asegurar que no acceda a los datos.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Clic derecho -> <strong>Disable Account</strong> -> Mover a OU "Deshabilitados".</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">Disable-ADAccount -Identity "jgarcia"</code>
-          </div>
-        </div>
-      </div>
-    </div>
+<span class="cm"># Ver errores de replicación detallados</span>
+<span class="fn">repadmin</span> /showrepl
 
-    <div class="ticket" onclick="this.classList.toggle('open')">
-      <div class="ticket-header">
-        <span class="ticket-id">#007</span>
-        <span class="ticket-title">Errores de Replicación</span>
-        <span class="ticket-prio prio-high">Alta</span>
-        <span class="ticket-chevron">▼</span>
-      </div>
-      <div class="ticket-body">
-        <h5>Escenario</h5>
-        <p>Los cambios en el Servidor A no se reflejan en el Servidor B.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-          <div style="flex: 1; min-width: 250px; background: rgba(0,212,255,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent);">🖱️ Interfaz (GUI)</strong>
-            <p style="font-size: 0.85rem; color: var(--muted); margin-top:0.5rem;">Sites & Services -> Servers -> NTDS Settings -> <strong>Replicate Now</strong>.</p>
-          </div>
-          <div style="flex: 1; min-width: 250px; background: rgba(124,58,237,0.03); padding: 1rem; border: 1px solid var(--border); border-radius: 8px;">
-            <strong style="color: var(--accent2);">⌨️ PowerShell (Pro)</strong>
-            <code style="font-size: 0.75rem; display: block; margin-top:0.5rem;">repadmin /syncall /AdeP</code>
-          </div>
-        </div>
+<span class="cm"># Diagnóstico completo del DC</span>
+<span class="fn">dcdiag</span> /v /test:replications</code></pre>
+        <h5>Forzar replicación</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Forzar replicación de todos los DCs</span>
+<span class="fn">repadmin</span> /syncall /AdeP
+
+<span class="cm"># Forzar replicación desde un DC específico</span>
+<span class="fn">repadmin</span> /replicate SRV-DC02 SRV-DC01 DC=empresa,DC=local</code></pre>
       </div>
     </div>
   </section>
@@ -1223,20 +1649,358 @@
     </div>
   </section>
 
+
+  <!-- SECCIÓN: PRÁCTICAS GUIADAS -->
+  <section id="practica">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2>Prácticas guiadas</h2>
+    </div>
+
+    <p>Con el lab montado, estos ejercicios te permiten practicar las tareas más habituales en un entorno IT real. Cada práctica tiene un objetivo claro, el código completo y cómo verificar que funciona.</p>
+
+    <!-- PRÁCTICA 1: USUARIOS MASIVOS -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">LAB-01</span>
+        <span class="ticket-title">Crear usuarios masivos desde CSV con PowerShell</span>
+        <span class="ticket-prio prio-high">ESENCIAL</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Objetivo</h5>
+        <p>Crear 20 usuarios de distintos departamentos de forma automatizada usando un CSV como fuente de datos. Esto simula exactamente lo que harías en una empresa real cuando incorporan empleados nuevos en bloque.</p>
+
+        <h5>Paso 1 — Crear el archivo CSV</h5>
+        <p>Crea el archivo en el DC o en tu host y cópialo a la VM. Guárdalo como <code>C:\usuarios.csv</code>:</p>
+        <span class="code-label">usuarios.csv</span>
+        <pre><code>Nombre,Apellido,Departamento,Puesto
+Ana,Garcia,RRHH,Técnica de Selección
+Carlos,Lopez,IT,Administrador de Sistemas
+María,Martínez,Contabilidad,Contable Senior
+Pedro,Sanchez,IT,Helpdesk
+Laura,Fernandez,RRHH,Coordinadora
+Javier,Ruiz,Marketing,Diseñador
+Sofia,Diaz,Contabilidad,Auditora
+Miguel,Torres,IT,Sysadmin
+Elena,Moreno,Marketing,Community Manager
+David,Jimenez,RRHH,Técnico de Nóminas
+Isabel,Alvarez,IT,Analista de Seguridad
+Raul,Romero,Contabilidad,Controller
+Nuria,Alonso,Marketing,Directora
+Alberto,Gutierrez,IT,DevOps
+Cristina,Navarro,RRHH,Business Partner
+Francisco,Ramos,Contabilidad,Jefe de Contabilidad
+Silvia,Medina,Marketing,Analista
+Daniel,Castillo,IT,Network Admin
+Beatriz,Ortega,RRHH,Técnica de Formación
+Sergio,Morales,IT,Security Analyst</code></pre>
+
+        <h5>Paso 2 — Script de creación masiva</h5>
+        <p>Este script lee el CSV, crea cada usuario en la OU correcta según su departamento, y genera una contraseña inicial estandarizada:</p>
+        <span class="code-label">PowerShell — C:\Scripts\crear-usuarios.ps1</span>
+        <pre><code><span class="cm"># ============================================
+# SCRIPT: Creación masiva de usuarios AD
+# Fuente: C:\usuarios.csv
+# ============================================</span>
+
+<span class="var">$domain</span>    = <span class="str">"DC=lab,DC=local"</span>
+<span class="var">$baseOU</span>   = <span class="str">"OU=Usuarios,OU=_LAB,$domain"</span>
+<span class="var">$csvPath</span>  = <span class="str">"C:\usuarios.csv"</span>
+<span class="var">$passBase</span> = <span class="str">"Bienvenido@2024!"</span>  <span class="cm"># Contraseña temporal estándar</span>
+
+<span class="cm"># Departamentos y sus OUs correspondientes</span>
+<span class="var">$ouMap</span> = @{
+  <span class="str">"IT"</span>           = <span class="str">"OU=IT,$baseOU"</span>
+  <span class="str">"RRHH"</span>         = <span class="str">"OU=RRHH,$baseOU"</span>
+  <span class="str">"Contabilidad"</span> = <span class="str">"OU=Contabilidad,$baseOU"</span>
+  <span class="str">"Marketing"</span>    = <span class="str">"OU=Marketing,$baseOU"</span>
+}
+
+<span class="cm"># Crear OUs si no existen</span>
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"_LAB"</span>         <span class="var">-Path</span> <span class="var">$domain</span>   <span class="var">-ErrorAction</span> SilentlyContinue
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Usuarios"</span>     <span class="var">-Path</span> <span class="str">"OU=_LAB,$domain"</span> <span class="var">-ErrorAction</span> SilentlyContinue
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"IT"</span>           <span class="var">-Path</span> <span class="var">$baseOU</span>  <span class="var">-ErrorAction</span> SilentlyContinue
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"RRHH"</span>         <span class="var">-Path</span> <span class="var">$baseOU</span>  <span class="var">-ErrorAction</span> SilentlyContinue
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Contabilidad"</span> <span class="var">-Path</span> <span class="var">$baseOU</span>  <span class="var">-ErrorAction</span> SilentlyContinue
+<span class="fn">New-ADOrganizationalUnit</span> <span class="var">-Name</span> <span class="str">"Marketing"</span>    <span class="var">-Path</span> <span class="var">$baseOU</span>  <span class="var">-ErrorAction</span> SilentlyContinue
+
+<span class="cm"># Leer CSV y crear usuarios</span>
+<span class="var">$usuarios</span> = <span class="fn">Import-Csv</span> <span class="var">-Path</span> <span class="var">$csvPath</span> <span class="var">-Encoding</span> UTF8
+
+<span class="kw">foreach</span> (<span class="var">$u</span> <span class="kw">in</span> <span class="var">$usuarios</span>) {
+
+  <span class="cm"># Generar SamAccountName: primera letra nombre + apellido (todo minúsculas)</span>
+  <span class="var">$sam</span> = (<span class="var">$u</span>.Nombre[0] + <span class="var">$u</span>.Apellido).ToLower() <span class="var">-replace</span> <span class="str">' ',''</span>
+  <span class="var">$upn</span> = <span class="str">"$sam@lab.local"</span>
+  <span class="var">$ou</span>  = <span class="var">$ouMap</span>[<span class="var">$u</span>.Departamento]
+
+  <span class="cm"># Verificar que la OU existe en el mapa</span>
+  <span class="kw">if</span> (<span class="var">-not</span> <span class="var">$ou</span>) {
+    <span class="fn">Write-Warning</span> <span class="str">"Departamento desconocido: $($u.Departamento) — usuario $sam omitido"</span>
+    <span class="kw">continue</span>
+  }
+
+  <span class="kw">try</span> {
+    <span class="fn">New-ADUser</span> `
+      <span class="var">-Name</span>                  <span class="str">"$($u.Nombre) $($u.Apellido)"</span> `
+      <span class="var">-GivenName</span>             <span class="var">$u</span>.Nombre `
+      <span class="var">-Surname</span>               <span class="var">$u</span>.Apellido `
+      <span class="var">-SamAccountName</span>        <span class="var">$sam</span> `
+      <span class="var">-UserPrincipalName</span>     <span class="var">$upn</span> `
+      <span class="var">-Department</span>            <span class="var">$u</span>.Departamento `
+      <span class="var">-Title</span>                 <span class="var">$u</span>.Puesto `
+      <span class="var">-Path</span>                  <span class="var">$ou</span> `
+      <span class="var">-AccountPassword</span>       (<span class="fn">ConvertTo-SecureString</span> <span class="var">$passBase</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>) `
+      <span class="var">-ChangePasswordAtLogon</span> <span class="var">$true</span> `
+      <span class="var">-Enabled</span>               <span class="var">$true</span>
+
+    <span class="fn">Write-Host</span> <span class="str">"[OK] $sam creado en OU=$($u.Departamento)"</span> <span class="var">-ForegroundColor</span> Green
+
+  } <span class="kw">catch</span> {
+    <span class="fn">Write-Host</span> <span class="str">"[ERR] $sam — $($_.Exception.Message)"</span> <span class="var">-ForegroundColor</span> Red
+  }
+}
+
+<span class="fn">Write-Host</span> <span class="str">"`n✅ Proceso completado. Total procesados: $($usuarios.Count)"</span> <span class="var">-ForegroundColor</span> Cyan</code></pre>
+
+        <h5>Paso 3 — Ejecutar el script</h5>
+        <span class="code-label">PowerShell (como Administrador en el DC)</span>
+        <pre><code><span class="cm"># Permitir ejecución de scripts (solo en el lab)</span>
+<span class="fn">Set-ExecutionPolicy</span> RemoteSigned <span class="var">-Scope</span> CurrentUser
+
+<span class="cm"># Ejecutar</span>
+<span class="fn">.\crear-usuarios.ps1</span></code></pre>
+
+        <h5>Verificación</h5>
+        <span class="code-label">PowerShell</span>
+        <pre><code><span class="cm"># Contar usuarios creados por departamento</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> * <span class="var">-Properties</span> Department | <span class="fn">Group-Object</span> Department | <span class="fn">Select-Object</span> Name, Count
+
+<span class="cm"># Ver todos los usuarios en una OU concreta</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> * <span class="var">-SearchBase</span> <span class="str">"OU=IT,OU=Usuarios,OU=_LAB,DC=lab,DC=local"</span> | <span class="fn">Select-Object</span> Name, SamAccountName
+
+<span class="cm"># Iniciar sesión desde el cliente con uno de los usuarios creados</span>
+<span class="cm"># Usuario: agarcia  Contraseña: Bienvenido@2024!  (pedirá cambio al primer login)</span></code></pre>
+
+        <div class="callout callout-tip">
+          <span class="callout-icon">🚀</span>
+          <div class="callout-content">
+            <strong>Siguiente nivel — añadir foto, teléfono y manager</strong>
+            <p>Extiende el CSV con columnas <code>Telefono</code> y <code>Manager</code> y añade <code>-OfficePhone $u.Telefono -Manager $u.Manager</code> al comando <code>New-ADUser</code>. Así practicas atributos más completos que verás en entornos reales.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÁCTICA 2: BLOQUEO Y RESET -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">LAB-02</span>
+        <span class="ticket-title">Simular bloqueo de cuenta y proceso de desbloqueo</span>
+        <span class="ticket-prio prio-med">BÁSICO</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Objetivo</h5>
+        <p>Reproducir el ticket más habitual del helpdesk: un usuario se bloquea. Aprenderás a provocarlo, detectarlo, identificar el origen del bloqueo y resolverlo correctamente.</p>
+
+        <h5>Paso 1 — Configurar la política de bloqueo</h5>
+        <p>Primero asegúrate de que hay una política de bloqueo activa. Por defecto en un lab nuevo puede no haberla:</p>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Ver política de bloqueo actual</span>
+<span class="fn">Get-ADDefaultDomainPasswordPolicy</span>
+
+<span class="cm"># Configurar: bloquear tras 5 intentos, desbloquear tras 30 min</span>
+<span class="fn">Set-ADDefaultDomainPasswordPolicy</span> <span class="var">-Identity</span> <span class="str">"lab.local"</span> `
+  <span class="var">-LockoutThreshold</span>          5 `
+  <span class="var">-LockoutDuration</span>           00:30:00 `
+  <span class="var">-LockoutObservationWindow</span>  00:30:00</code></pre>
+
+        <h5>Paso 2 — Provocar el bloqueo desde el cliente</h5>
+        <p>Desde la VM cliente, intenta iniciar sesión con un usuario del lab usando una contraseña incorrecta 6 veces seguidas. Puedes hacerlo desde la pantalla de login o con este comando:</p>
+        <span class="code-label">PowerShell — en el cliente</span>
+        <pre><code><span class="cm"># Genera 6 intentos fallidos contra el DC</span>
+1..6 | <span class="fn">ForEach-Object</span> {
+  <span class="var">$cred</span> = <span class="fn">New-Object</span> System.Management.Automation.PSCredential(<span class="str">"LAB\agarcia"</span>, (<span class="fn">ConvertTo-SecureString</span> <span class="str">"contraseña_incorrecta"</span> <span class="var">-AsPlainText</span> <span class="var">-Force</span>))
+  <span class="kw">try</span> { <span class="fn">New-PSSession</span> <span class="var">-ComputerName</span> <span class="str">"DC01"</span> <span class="var">-Credential</span> <span class="var">$cred</span> <span class="var">-ErrorAction</span> Stop }
+  <span class="kw">catch</span> { <span class="fn">Write-Host</span> <span class="str">"Intento $_: fallido"</span> }
+}</code></pre>
+
+        <h5>Paso 3 — Detectar y resolver desde el DC</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Verificar que está bloqueada</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Identity</span> <span class="str">"agarcia"</span> <span class="var">-Properties</span> LockedOut, BadLogonCount, LastBadPasswordAttempt
+
+<span class="cm"># Ver en los eventos desde dónde se intentó (Event ID 4740)</span>
+<span class="fn">Get-WinEvent</span> <span class="var">-FilterHashtable</span> @{LogName=<span class="str">'Security'</span>; Id=4740} `
+  | <span class="fn">Where-Object</span> {<span class="var">$_</span>.Message <span class="var">-like</span> <span class="str">"*agarcia*"</span>} `
+  | <span class="fn">Select-Object</span> TimeCreated, Message <span class="var">-First</span> 3
+
+<span class="cm"># Desbloquear la cuenta</span>
+<span class="fn">Unlock-ADAccount</span> <span class="var">-Identity</span> <span class="str">"agarcia"</span>
+<span class="fn">Write-Host</span> <span class="str">"Cuenta desbloqueada"</span> <span class="var">-ForegroundColor</span> Green</code></pre>
+      </div>
+    </div>
+
+    <!-- PRÁCTICA 3: GPO FONDO PANTALLA -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">LAB-03</span>
+        <span class="ticket-title">Aplicar GPO de fondo de pantalla corporativo</span>
+        <span class="ticket-prio prio-low">BÁSICO</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Objetivo</h5>
+        <p>Crear una GPO que imponga un fondo de pantalla a todos los usuarios del dominio. Es el ejercicio clásico para entender cómo funcionan las GPOs de usuario.</p>
+
+        <h5>Paso 1 — Preparar el fondo</h5>
+        <p>Copia una imagen JPG al DC en una ruta accesible por todos los equipos del dominio. Lo ideal es compartirla desde el propio DC via Sysvol (que ya es un recurso compartido en todos los dominios AD):</p>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Crea la carpeta y copia la imagen en Sysvol</span>
+<span class="fn">New-Item</span> <span class="var">-Path</span> <span class="str">"C:\Windows\SYSVOL\sysvol\lab.local\Fondos"</span> <span class="var">-ItemType</span> Directory <span class="var">-Force</span>
+
+<span class="cm"># Copia tu imagen (o usa cualquier JPG de ejemplo)</span>
+<span class="fn">Copy-Item</span> <span class="var">-Path</span> <span class="str">"C:\fondo.jpg"</span> <span class="var">-Destination</span> <span class="str">"C:\Windows\SYSVOL\sysvol\lab.local\Fondos\"</span>
+
+<span class="cm"># La ruta UNC que usaremos en la GPO es:</span>
+<span class="cm"># \\lab.local\sysvol\lab.local\Fondos\fondo.jpg</span></code></pre>
+
+        <h5>Paso 2 — Crear y configurar la GPO</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Crear la GPO</span>
+<span class="fn">New-GPO</span> <span class="var">-Name</span> <span class="str">"GPO-Fondo-Corporativo"</span>
+
+<span class="cm"># Vincular al dominio (se aplica a todos)</span>
+<span class="fn">New-GPLink</span> <span class="var">-Name</span> <span class="str">"GPO-Fondo-Corporativo"</span> <span class="var">-Target</span> <span class="str">"DC=lab,DC=local"</span>
+
+<span class="cm"># Configurar el fondo via registro (User Configuration)</span>
+<span class="fn">Set-GPRegistryValue</span> <span class="var">-Name</span> <span class="str">"GPO-Fondo-Corporativo"</span> `
+  <span class="var">-Key</span>       <span class="str">"HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System"</span> `
+  <span class="var">-ValueName</span> <span class="str">"Wallpaper"</span> `
+  <span class="var">-Value</span>     <span class="str">"\\lab.local\sysvol\lab.local\Fondos\fondo.jpg"</span> `
+  <span class="var">-Type</span>      String
+
+<span class="fn">Set-GPRegistryValue</span> <span class="var">-Name</span> <span class="str">"GPO-Fondo-Corporativo"</span> `
+  <span class="var">-Key</span>       <span class="str">"HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System"</span> `
+  <span class="var">-ValueName</span> <span class="str">"WallpaperStyle"</span> `
+  <span class="var">-Value</span>     <span class="str">"2"</span> `
+  <span class="var">-Type</span>      String</code></pre>
+
+        <h5>Paso 3 — Verificar en el cliente</h5>
+        <span class="code-label">PowerShell — en el cliente (como usuario de dominio)</span>
+        <pre><code><span class="cm"># Forzar descarga y aplicación de GPOs</span>
+<span class="fn">gpupdate</span> /force
+
+<span class="cm"># Ver qué GPOs se han aplicado</span>
+<span class="fn">gpresult</span> /r
+
+<span class="cm"># El fondo debería cambiar tras el gpupdate o al cerrar/abrir sesión</span></code></pre>
+
+        <div class="callout callout-tip">
+          <span class="callout-icon">✅</span>
+          <div class="callout-content">
+            <strong>Si el fondo no cambia</strong>
+            <p>Comprueba con <code>gpresult /r</code> que la GPO aparece en "Applied GPOs". Si aparece en "Denied", revisa que el usuario está en el alcance de la GPO. Cierra sesión completamente y vuelve a entrar.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÁCTICA 4: CARPETA COMPARTIDA CON PERMISOS -->
+    <div class="ticket" onclick="toggleTicket(this)">
+      <div class="ticket-header">
+        <span class="ticket-id">LAB-04</span>
+        <span class="ticket-title">Crear carpeta compartida con permisos por grupo</span>
+        <span class="ticket-prio prio-med">INTERMEDIO</span>
+        <span class="ticket-chevron">▼</span>
+      </div>
+      <div class="ticket-body">
+        <h5>Objetivo</h5>
+        <p>Crear una carpeta compartida en el DC donde el departamento de IT tenga acceso completo y RRHH solo lectura. Practicarás el modelo AGDLP y la diferencia entre permisos Share y NTFS.</p>
+
+        <h5>Paso 1 — Crear la carpeta y el recurso compartido</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Crear la carpeta</span>
+<span class="fn">New-Item</span> <span class="var">-Path</span> <span class="str">"C:\Compartido\Proyectos"</span> <span class="var">-ItemType</span> Directory <span class="var">-Force</span>
+
+<span class="cm"># Compartir la carpeta (permisos Share amplios — los NTFS son los que controlan)</span>
+<span class="fn">New-SmbShare</span> <span class="var">-Name</span> <span class="str">"Proyectos"</span> `
+  <span class="var">-Path</span>              <span class="str">"C:\Compartido\Proyectos"</span> `
+  <span class="var">-FullAccess</span>        <span class="str">"Domain Admins"</span> `
+  <span class="var">-ChangeAccess</span>      <span class="str">"Everyone"</span> `
+  <span class="var">-Description</span>       <span class="str">"Carpeta compartida de Proyectos"</span></code></pre>
+
+        <h5>Paso 2 — Crear grupos de acceso (modelo AGDLP)</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="cm"># Grupos de acceso (Domain Local — controlan permisos sobre el recurso)</span>
+<span class="fn">New-ADGroup</span> <span class="var">-Name</span> <span class="str">"DL_Proyectos_Control"</span> <span class="var">-GroupScope</span> DomainLocal <span class="var">-Path</span> <span class="str">"OU=Grupos,OU=_LAB,DC=lab,DC=local"</span>
+<span class="fn">New-ADGroup</span> <span class="var">-Name</span> <span class="str">"DL_Proyectos_Lectura"</span>  <span class="var">-GroupScope</span> DomainLocal <span class="var">-Path</span> <span class="str">"OU=Grupos,OU=_LAB,DC=lab,DC=local"</span>
+
+<span class="cm"># Grupos globales por departamento</span>
+<span class="fn">New-ADGroup</span> <span class="var">-Name</span> <span class="str">"GG_IT"</span>   <span class="var">-GroupScope</span> Global <span class="var">-Path</span> <span class="str">"OU=Grupos,OU=_LAB,DC=lab,DC=local"</span>
+<span class="fn">New-ADGroup</span> <span class="var">-Name</span> <span class="str">"GG_RRHH"</span> <span class="var">-GroupScope</span> Global <span class="var">-Path</span> <span class="str">"OU=Grupos,OU=_LAB,DC=lab,DC=local"</span>
+
+<span class="cm"># Meter usuarios en sus grupos globales</span>
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> {Department <span class="var">-eq</span> <span class="str">"IT"</span>}   | <span class="fn">ForEach-Object</span> { <span class="fn">Add-ADGroupMember</span> <span class="str">"GG_IT"</span>   <span class="var">-Members</span> <span class="var">$_</span> }
+<span class="fn">Get-ADUser</span> <span class="var">-Filter</span> {Department <span class="var">-eq</span> <span class="str">"RRHH"</span>} | <span class="fn">ForEach-Object</span> { <span class="fn">Add-ADGroupMember</span> <span class="str">"GG_RRHH"</span> <span class="var">-Members</span> <span class="var">$_</span> }
+
+<span class="cm"># Meter grupos globales en grupos de dominio local (AGDLP)</span>
+<span class="fn">Add-ADGroupMember</span> <span class="str">"DL_Proyectos_Control"</span> <span class="var">-Members</span> <span class="str">"GG_IT"</span>
+<span class="fn">Add-ADGroupMember</span> <span class="str">"DL_Proyectos_Lectura"</span>  <span class="var">-Members</span> <span class="str">"GG_RRHH"</span></code></pre>
+
+        <h5>Paso 3 — Asignar permisos NTFS</h5>
+        <span class="code-label">PowerShell — en el DC</span>
+        <pre><code><span class="var">$ruta</span> = <span class="str">"C:\Compartido\Proyectos"</span>
+<span class="var">$acl</span>  = <span class="fn">Get-Acl</span> <span class="var">$ruta</span>
+
+<span class="cm"># Quitar herencia y limpiar permisos actuales</span>
+<span class="var">$acl</span>.<span class="fn">SetAccessRuleProtection</span>(<span class="var">$true</span>, <span class="var">$false</span>)
+
+<span class="cm"># Permiso Control total para DL_Proyectos_Control (IT)</span>
+<span class="var">$reglaIT</span> = <span class="fn">New-Object</span> System.Security.AccessControl.FileSystemAccessRule(
+  <span class="str">"LAB\DL_Proyectos_Control"</span>, <span class="str">"FullControl"</span>, <span class="str">"ContainerInherit,ObjectInherit"</span>, <span class="str">"None"</span>, <span class="str">"Allow"</span>)
+
+<span class="cm"># Permiso Lectura para DL_Proyectos_Lectura (RRHH)</span>
+<span class="var">$reglaRRHH</span> = <span class="fn">New-Object</span> System.Security.AccessControl.FileSystemAccessRule(
+  <span class="str">"LAB\DL_Proyectos_Lectura"</span>, <span class="str">"ReadAndExecute"</span>, <span class="str">"ContainerInherit,ObjectInherit"</span>, <span class="str">"None"</span>, <span class="str">"Allow"</span>)
+
+<span class="cm"># Permiso para Admins</span>
+<span class="var">$reglaAdm</span> = <span class="fn">New-Object</span> System.Security.AccessControl.FileSystemAccessRule(
+  <span class="str">"LAB\Domain Admins"</span>, <span class="str">"FullControl"</span>, <span class="str">"ContainerInherit,ObjectInherit"</span>, <span class="str">"None"</span>, <span class="str">"Allow"</span>)
+
+<span class="var">$acl</span>.<span class="fn">AddAccessRule</span>(<span class="var">$reglaIT</span>)
+<span class="var">$acl</span>.<span class="fn">AddAccessRule</span>(<span class="var">$reglaRRHH</span>)
+<span class="var">$acl</span>.<span class="fn">AddAccessRule</span>(<span class="var">$reglaAdm</span>)
+<span class="fn">Set-Acl</span> <span class="var">-Path</span> <span class="var">$ruta</span> <span class="var">-AclObject</span> <span class="var">$acl</span>
+
+<span class="fn">Write-Host</span> <span class="str">"Permisos NTFS aplicados"</span> <span class="var">-ForegroundColor</span> Green</code></pre>
+
+        <h5>Verificación desde el cliente</h5>
+        <span class="code-label">CMD — desde el cliente como usuario de IT o RRHH</span>
+        <pre><code><span class="cm">:: Acceder al recurso compartido</span>
+\\DC01\Proyectos
+
+<span class="cm">:: Usuario de IT (GG_IT): debe poder crear, editar y borrar archivos</span>
+<span class="cm">:: Usuario de RRHH (GG_RRHH): solo puede leer, no crear ni borrar</span></code></pre>
+
+        <div class="callout callout-info">
+          <span class="callout-icon">💡</span>
+          <div class="callout-content">
+            <strong>Recuerda cerrar sesión</strong>
+            <p>Si añades un usuario a un grupo durante la sesión activa, los cambios no se aplican hasta que cierre sesión y vuelva a entrar (el token Kerberos se regenera en el login).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
 </main>
 
 <footer>
-  <div style="margin-bottom: 0.5rem; color: var(--accent); font-weight: 600;">
-    © 2026 Jose Ignacio Navarro
-  </div>
-  <div style="font-size: 0.65rem; letter-spacing: 0.05em; color: var(--muted);">
-    PROYECTO: ACTIVE DIRECTORY LAB & IT SUPPORT GUIDE
-  </div>
-  <div style="margin-top: 1rem;">
-    <span style="border-top: 1px solid var(--border); padding-top: 0.5rem; display: inline-block;">
-      Analista de Sistemas e Infraestructura IT
-    </span>
-  </div>
+  Active Directory Guide · Para juniors IT · Desplegado con GitHub Pages
 </footer>
 
 <script>
